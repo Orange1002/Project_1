@@ -14,8 +14,7 @@ $repassword = $_POST["repassword"];
 $email = $_POST['email'];
 $phone = $_POST['phone'];
 $birth_date = $_POST['birth_date'];
-// $now = date("Y-m-d H:i:s");
-// echo strlen($account);
+
 if (strlen($account) < 4 || strlen($account) > 20) {
     die("請輸入4~20字元的帳號");
 }

@@ -51,35 +51,50 @@
 </head>
 
 <body>
-    <div class="vh-100 bg-img d-flex justify-content-center align-items-center">
+    <div class="vh-100 d-flex justify-content-center align-items-center">
         <div class="login-painel">
-            <img class="logo mb-2" src="../images/" alt="">
-            <h1 class="text-light">Please sign in</h1>
-            <form action="doSignin.php" method="post">
-                <div class="input-area">
-                    <div class="form-floating">
-                        <input type="text" class="form-control" id="floatingInput" placeholder="account" name="account">
-                        <label for="floatingInput">account</label>
+            <img class="logo mb-2" src="../images/TripAdvisor_Logo.svg.png" alt="">
+            <h1 class="text-dark">Please sign in</h1>
+            <?php if (isset($_SESSION["error"]["times"]) && $_SESSION["error"]["times"] > 5): ?>
+                <div class="alert alert-danger" role="alert">
+                    錯誤次數太多,請稍後再嘗試
+                </div>
+            <?php else: ?>
+                <form action="doSignin.php" method="post">
+                    <div class="input-area">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="floatingInput" placeholder="Account" name="account">
+                            <label for="floatingInput">Account</label>
+                        </div>
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password">
+                            <label for="floatingPassword">Password</label>
+                        </div>
                     </div>
-                    <div class="form-floating">
-                        <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="Password">
-                        <label for="floatingPassword">Password</label>
+                    <?php if (isset($_SESSION["error"]["message"])): ?>
+                        <div
+                            class="alert alert-danger"
+                            role="alert">
+                            <?= $_SESSION["error"]["message"] ?>
+                        </div>
+                    <?php
+                        unset($_SESSION["error"]["message"]);
+                    endif; ?>
+                    <div class="form-check my-3">
+                        <input class="form-check-input" type="checkbox" value="" id="Remember">
+                        <label class="text-dark form-check-label" for="Remember">
+                            Remember Me
+                        </label>
                     </div>
-                </div>
-                <div class="form-check my-2">
-                    <input class="form-check-input" type="checkbox" value="" id="Remember">
-                    <label class="text-dark form-check-label" for="Remember">
-                        Remember Me
-                    </label>
-                </div>
-                <div class="d-grid">
-                    <button class="btn btn-warning">
-                        Sign in
-                    </button>
-                </div>
-            </form>
+                    <div class="d-grid">
+                        <button class="btn btn-primary">
+                            Sign in
+                        </button>
+                    </div>
+                </form>
+            <?php endif; ?>
             <div class="mt-3">
-                <p> &copy; 2025 </p>
+                <p> &copy; 2017-2024 </p>
             </div>
         </div>
     </div>

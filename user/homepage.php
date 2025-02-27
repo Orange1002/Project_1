@@ -8,6 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <title>Bark & Bijou</title>
+    <?php include("../css.php") ?>
 </head>
 
 <body id="page-top">

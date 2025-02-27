@@ -87,7 +87,7 @@
                         </label>
                     </div>
                     <div class="d-grid">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-warning">
                             Sign in
                         </button>
                     </div>

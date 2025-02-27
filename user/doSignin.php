@@ -1,8 +1,6 @@
 <?php
-require_once("../db_connect.php");
+require_once("../db_connect_bark_bijou.php");
 session_start();
-
-
 
 if (!isset($_POST["account"])) {
     echo "請循正常管道進入此頁";
@@ -15,14 +13,14 @@ $password = $_POST["password"];
 if (strlen($account) < 4 || strlen($account) > 20) {
     $error = ("請輸入4~20字元的帳號");
     $_SESSION["error"]["message"] = $error;
-    header("location: sign-in.php");
+    header("location: sign_in.php");
     exit;
 }
 
 if (strlen($password) < 4 || strlen($password) > 20) {
     $error = ("請輸入4~20字元的密碼");
     $_SESSION["error"]["message"] = $error;
-    header("location: sign-in.php");
+    header("location: sign_in.php");
     exit;
 }
 
@@ -42,7 +40,7 @@ if ($userCount == 0) {
 
     $error = "帳號或密碼錯誤";
     $_SESSION["error"]["message"] = $error;
-    header("location: sign-in.php");
+    header("location: sign_in.php");
     exit;
 }
 

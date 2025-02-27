@@ -1,0 +1,25 @@
+.primary {
+    background-color: rgba(245, 160, 23, 0.919);
+}
+
+:root {
+    --orange: rgb(255, 115, 0);
+    --white: #ffffff;
+    --height1: 300px;
+}
+
+
+.btn-orange {
+    color: var(--white);
+    background: var(--orange);
+}
+
+.btn-orange:link, .btn-orange:visited{
+    color: #ffffff;
+    background: rgb(255, 115, 0);
+}
+
+.btn-orange:hover, .btn-orange:active{
+    color: #ffffff;
+    background: rgb(255, 115, 0);
+}

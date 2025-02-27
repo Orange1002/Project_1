@@ -360,7 +360,7 @@ if (isset($_GET["q"])) {
                                             </form>
                                         </div>
                                         <div class="col-1">
-                                            <a class="btn btn-warning" href="create-user.php"><i class="fa-solid fa-user-plus fa-fw"></i></a>
+                                            <a class="btn btn-warning" href="user_create.php"><i class="fa-solid fa-user-plus fa-fw"></i></a>
                                         </div>
                                     </div>
                                 </div>
@@ -442,9 +442,9 @@ if (isset($_GET["q"])) {
                                                 <td class="align-middle text-center"><?= $row["email"] ?></td>
                                                 <td class="align-middle text-center"><?= $row["created_at"] ?></td>
                                                 <td class="align-middle text-center p-0">
-                                                    <a href="user-edit.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-success btn-sm"><i class="fa-solid fa-fw fa-pen"></i></a>
+                                                    <a href="user_edit.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-success btn-sm"><i class="fa-solid fa-fw fa-pen"></i></a>
 
-                                                    <a href="user-view.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-primary btn-sm"><i class="fa-regular fa-eye"></i></a>
+                                                    <a href="user_view.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-primary btn-sm"><i class="fa-regular fa-eye"></i></a>
 
                                                     <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="fa-solid fa-trash fa-fw"></i></a>
                                                 </td>

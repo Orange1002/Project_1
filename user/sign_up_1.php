@@ -17,7 +17,7 @@
             <div class="col-lg-4 col-md-6">
                 <h3>註冊 - 步驟 1</h3>
                 <div class="mt-3">
-                    <form action="sign-up-2.php" method="post">
+                    <form action="sign_up_2.php" method="post">
                         <!-- 基本資料 -->
                         <div class="mb-2">
                             <label for="name" class="form-label">使用者名稱</label>

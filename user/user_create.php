@@ -141,7 +141,7 @@
                         <div class="py-2">
                             <a class="btn btn-warning" href="users.php?p=1&order=1"><i class="fa-solid fa-arrow-left fa-fw"></i>使用者列表</a>
                         </div>
-                        <form action="doCreate.php" method="post">
+                        <form action="doCreateUser.php" method="post">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-2">

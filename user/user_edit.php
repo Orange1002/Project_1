@@ -173,7 +173,7 @@ $userCount = $result->num_rows;
                                     確認刪除使用者?
                                 </div>
                                 <div class="modal-footer">
-                                    <a role="button" type="button" class="btn btn-danger" href="userDelete.php?id=<?= $row["id"] ?>">確認</a>
+                                    <a role="button" type="button" class="btn btn-danger" href="doDeleteUser.php?id=<?= $row["id"] ?>">確認</a>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                                 </div>
                             </div>

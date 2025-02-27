@@ -17,7 +17,7 @@ echo $sql;
 
 if ($conn->query($sql) === TRUE) {
     // echo "資料更新成功";
-    header("location: user-view.php?id=$id");
+    header("location: user_view.php?id=$id");
 } else {
     echo "Error: " . $sql . "<br>" . $conn->error;
 }

@@ -5,7 +5,7 @@ if (!isset($_SESSION["user"])) {
     exit;
 }
 if (!isset($_GET["id"])) {
-    header("location: users.php");
+    header("location: users.php?p=1&order=1");
 }
 
 $id = $_GET["id"];

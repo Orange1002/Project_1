@@ -10,8 +10,9 @@ $name = $_POST["name"];
 $phone = $_POST["phone"];
 $email = $_POST["email"];
 $gender_id = $_POST["gender_id"];
+$birth_date = $_POST["birth_date"];
 
-$sql = "UPDATE users SET name='$name', phone='$phone', email='$email', gender_id='$gender_id'
+$sql = "UPDATE users SET name='$name', phone='$phone', email='$email', gender_id='$gender_id', birth_date='$birth_date'
 WHERE id='$id'";
 echo $sql;
 

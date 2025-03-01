@@ -204,7 +204,7 @@ $userCount = $result->num_rows;
                                             </div>
                                             <div class="mb-5 px-3">
                                                 <label class="form-label fs-4">出生日期</label>
-                                                <input type="date" class="form-control fs-4 ps-2" value="<?= $row["birth_date"] ?>">
+                                                <input type="date" class="form-control fs-4 ps-2" value="<?= $row["birth_date"] ?>" name="birth_date">
                                             </div>
                                             <div class="d-flex justify-content-between mx-3">
                                                 <a class="btn btn-danger fs-4" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="fa-solid fa-trash fa-fw"></i></a>

@@ -320,7 +320,7 @@ if (isset($_GET["q"])) {
                                         <div class="col-5">
                                             <form action="" method="get">
                                                 <div class="input-group">
-                                                    <input type="search" class="form-control" name="q" <?php $q = "";
+                                                    <input type="search" placeholder="搜尋使用者" class="form-control" name="q" <?php $q = "";
                                                                                                         $q = $_GET["q"] ?? ""; ?>
                                                         value="<?= $q ?>">
                                                     <button class="btn btn-warning"><i class="fa-solid fa-magnifying-glass fa-fw" type="submit"></i></button>

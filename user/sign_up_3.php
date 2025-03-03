@@ -31,15 +31,15 @@ session_start();
                                     <img src="./user_images/default_1.png" class="rounded-circle" width="120">
                                 </label>
                                 <label>
-                                    <input type="radio" name="default_avatar" value="avatar2.png">
+                                    <input type="radio" name="default_avatar" value="default_1.png">
                                     <img src="./user_images/default_2.png" class="rounded-circle" width="120">
                                 </label>
                                 <label>
-                                    <input type="radio" name="default_avatar" value="avatar3.png">
+                                    <input type="radio" name="default_avatar" value="default_2.png">
                                     <img src="./user_images/default_3.png" class="rounded-circle" width="120">
                                 </label>
                                 <label>
-                                    <input type="radio" name="default_avatar" value="avatar4.png">
+                                    <input type="radio" name="default_avatar" value="default_3.png">
                                     <img src="./user_images/default_4.png" class="rounded-circle" width="120">
                                 </label>
                             </div>

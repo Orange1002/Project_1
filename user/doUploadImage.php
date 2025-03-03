@@ -3,10 +3,14 @@ require_once("../db_connect_bark_bijou.php");
 session_start();
 
 // 檢查是否有傳遞必要的資料
-if (!isset($_POST["name"])) {
-    echo "請循正常管道進入此頁";
-    exit;
-}
+// if (!isset($_POST["name"])) {
+//     echo "請循正常管道進入此頁";
+//     exit;
+// }
+
+// 確認圖片格式和大小
+$allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+$max_size = 5 * 1024 * 1024;  // 5MB
 
 // 預設頭像或自訂頭像的處理
 if (isset($_POST['default_avatar'])) {
@@ -19,7 +23,7 @@ if (isset($_POST['default_avatar'])) {
     $new_file_name = time() . "_" . uniqid() . "." . $ext;  // 生成新檔案名稱
 
     // 上傳檔案
-    $upload_dir = "./upload/";
+    $upload_dir = "./user_images/";
     if (move_uploaded_file($_FILES["user_upload_image"]["tmp_name"], $upload_dir . $new_file_name)) {
         $avatar = $new_file_name; // 儲存檔案名稱
     } else {

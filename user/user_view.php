@@ -10,13 +10,17 @@ if (!isset($_GET["id"])) {
 
 $id = $_GET["id"];
 require_once("../db_connect_bark_bijou.php");
-$sql = "SELECT * FROM users WHERE id = $id AND valid=1";
+$sql = "SELECT users.*, user_images.image AS image_path
+FROM users
+LEFT JOIN user_images ON users.id = user_images.user_id
+WHERE users.id = $id AND users.valid = 1;";
 // 之後要進入在網址後加 ?id=
 $result = $conn->query($sql);
 // $rows=$result->fetch_all(MYSQLI_ASSOC);
 // var_dump($rows[0]);
 $row = $result->fetch_assoc();
 $userCount = $result->num_rows;
+// var_dump($row["image_path"]);
 
 ?>
 <!doctype html>
@@ -132,13 +136,21 @@ $userCount = $result->num_rows;
                         <h1 class="h3 mb-0 text-gray-800">會員資料</h1>
                     </div>
                     <div class="container">
-                        <div class="py-2 ms-3 mb-5">
+                        <div class="py-2 ms-3">
                             <a href="users.php?p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="fs-4 btn btn-secondary"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
                         </div>
                         <?php if ($userCount > 0): ?>
                             <form>
                                 <div class="row">
                                     <div class="col-md-6">
+                                        <div class="d-flex justify-content-center mb-5">
+                                            <?php if (!empty($row["image_path"])): ?>
+                                                <img src="./user_images/<?= $row["image_path"] ?>" alt="使用者圖片"
+                                                    style="width: 170px; height: 170px; object-fit: cover; border-radius: 50%;">
+                                            <?php else: ?>
+                                                <i class="fa-solid fa-user" style="font-size: 170px; color: #ccc;"></i>
+                                            <?php endif; ?>
+                                        </div>
                                         <input type="hidden" name="id" value="<?= $row["id"] ?>">
                                         <div class="mb-3 px-3">
                                             <label class="form-label fs-4">ID</label>
@@ -152,12 +164,12 @@ $userCount = $result->num_rows;
                                             <label class="form-label fs-4">帳號</label>
                                             <input type="text" class="form-control-plaintext bg-light border border-secondary-subtle rounded fs-4 ps-2" value="<?= $row["account"] ?>" readonly>
                                         </div>
+                                    </div>
+                                    <div class="col-md-6">
                                         <div class="mb-3 px-3">
                                             <label class="form-label fs-4">加入時間</label>
                                             <input type="date" class="form-control-plaintext bg-light border border-secondary-subtle rounded fs-4 ps-2" value="<?= $row["created_at"] ?>" readonly>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6">
                                         <div class="mb-3 px-3">
                                             <label class="form-label fs-4">電話</label>
                                             <input type="tel" class="form-control-plaintext bg-light border border-secondary-subtle rounded fs-4 ps-2" name="phone" value="<?= $row["phone"] ?>" readonly>

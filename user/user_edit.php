@@ -15,10 +15,15 @@ if (!isset($_GET["id"])) {
 
 $id = $_GET["id"];
 require_once("../db_connect_bark_bijou.php");
-$sql = "SELECT users.*, gender.name AS gender_name, gender.id AS gender_id
+$sql = "SELECT users.*, 
+               gender.name AS gender_name, 
+               gender.id AS gender_id, 
+               user_images.image AS image_path 
         FROM users
         LEFT JOIN gender ON users.gender_id = gender.id
+        LEFT JOIN user_images ON users.id = user_images.user_id
         WHERE users.id = $id";
+
 // 之後要進入在網址後加 ?id=
 $result = $conn->query($sql);
 // $rows=$result->fetch_all(MYSQLI_ASSOC);
@@ -159,15 +164,56 @@ $userCount = $result->num_rows;
                         </div>
                     </div>
                     <div class="container">
-                        <div class="py-2 ms-3 mb-5">
+                        <div class="py-2 ms-3">
                             <a href="users.php?p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="fs-4 btn btn-secondary"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
                         </div>
+
+
+
                         <div class="row justify-content-center">
                             <?php if ($userCount > 0): ?>
-                                <form action="doUpdateUser.php" method="post">
+                                <form action="doUpdateUser.php" method="post" enctype="multipart/form-data">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <input type="hidden" name="id" value="<?= $row["id"] ?>">
+                                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+
+                                            <!-- 顯示使用者圖片和上傳圖片的表單 -->
+                                            <div class="d-flex mb-5">
+                                                <div class="me-3">
+                                                    <?php if (!empty($row["image_path"])): ?>
+                                                        <img src="./user_images/<?= htmlspecialchars($row["image_path"]) ?>" alt="使用者圖片"
+                                                            style="width: 170px; height: 170px; object-fit: cover; border-radius: 50%;" id="imagePreview">
+                                                    <?php else: ?>
+                                                        <i class="fa-solid fa-user" style="font-size: 170px; color: #ccc;"></i>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <label class="form-label">選擇預設頭像</label>
+                                                    <div class="d-flex">
+                                                        <!-- 預設頭像選項 -->
+                                                        <label>
+                                                            <input type="radio" name="default_avatar" value="avatar1.png" onclick="previewDefaultAvatar('default_1.png')">
+                                                            <img src="./user_images/default_1.png" class="rounded-circle" width="60">
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" name="default_avatar" value="default_2.png" onclick="previewDefaultAvatar('default_2.png')">
+                                                            <img src="./user_images/default_2.png" class="rounded-circle" width="60">
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" name="default_avatar" value="default_3.png" onclick="previewDefaultAvatar('default_3.png')">
+                                                            <img src="./user_images/default_3.png" class="rounded-circle" width="60">
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" name="default_avatar" value="default_4.png" onclick="previewDefaultAvatar('default_4.png')">
+                                                            <img src="./user_images/default_4.png" class="rounded-circle" width="60">
+                                                        </label>
+                                                    </div>
+                                                    <label for="image" class="form-label text-nowp">或是上傳新頭像</label>
+                                                    <input type="file" class="form-control" name="user_upload_image" id="user_upload_image" onchange="previewImage(event)" accept=".jpg, .jpeg, .png, .gif">
+                                                </div>
+                                            </div>
+
+                                            <!-- 使用者基本資訊 -->
                                             <div class="mb-3 px-3">
                                                 <label class="form-label fs-4">ID</label>
                                                 <input type="text" class="form-control-plaintext bg-gray border border-secondary-subtle rounded fs-4 ps-2" value="<?= $row["id"] ?>" readonly>
@@ -180,12 +226,13 @@ $userCount = $result->num_rows;
                                                 <label class="form-label fs-4">帳號</label>
                                                 <input type="text" class="form-control-plaintext bg-light border border-secondary-subtle rounded fs-4 ps-2" value="<?= $row["account"] ?>" readonly>
                                             </div>
+                                        </div>
+
+                                        <div class="col-md-6">
                                             <div class="mb-3 px-3">
                                                 <label class="form-label fs-4">加入時間</label>
                                                 <input type="date" class="form-control-plaintext bg-light border border-secondary-subtle rounded fs-4 ps-2" value="<?= $row["created_at"] ?>" readonly>
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
                                             <div class="mb-3 px-3">
                                                 <label class="form-label fs-4">電話</label>
                                                 <input type="tel" class="form-control fs-4 ps-2" name="phone" value="<?= $row["phone"] ?>">
@@ -225,6 +272,26 @@ $userCount = $result->num_rows;
         </div>
     </div>
     <?php include("../js.php") ?>
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const image = document.getElementById("imagePreview");
+                image.src = e.target.result;
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function previewDefaultAvatar(avatar) {
+            const image = document.getElementById("imagePreview");
+            image.src = './user_images/' + avatar;
+        }
+    </script>
 </body>
 
 </html>

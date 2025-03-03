@@ -1,4 +1,4 @@
- <?php
+<?php
     require_once("../db_connect_bark_bijou.php");
 
     $p = isset($_GET["p"]) ? (int)$_GET["p"] : 1;
@@ -9,7 +9,7 @@
     // 預設分類過濾條件為空
     $category_filter = "";
     if (isset($_GET["category_id"])) {
-        $category_id = (int)$_GET["category_id"]; 
+        $category_id = (int)$_GET["category_id"];
         $category_filter = " AND article.category_id = $category_id";
     }
 
@@ -30,6 +30,10 @@
     $result = $conn->query($sql);
     $rows = $result->fetch_all(MYSQLI_ASSOC);
     $category_name = "全部文章";
+    // 查詢已刪除文章數量
+    $sqlDeleted = "SELECT COUNT(*) as deleted_count FROM article WHERE valid = 0";
+    $resultDeleted = $conn->query($sqlDeleted);
+    $deletedCount = $resultDeleted->fetch_assoc()["deleted_count"];
 
     if ($cid > 0) {
         $sqlCategory = "SELECT name FROM article_category WHERE id = $cid";
@@ -248,6 +252,9 @@
                      </div>
                      <div class="py-2">
                          目前有<?= $articleCount ?>篇文章
+                         <?php if ($deletedCount > 0): ?>
+                             已刪除文章共<?= $deletedCount ?>篇
+                         <?php endif; ?>
                      </div>
                      <div>
                          <table class="table table-bordered">

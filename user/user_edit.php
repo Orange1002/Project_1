@@ -176,9 +176,8 @@ $userCount = $result->num_rows;
                                     <div class="row">
                                         <div class="col-md-6">
                                             <input type="hidden" name="id" value="<?= $row['id'] ?>">
-
                                             <!-- 顯示使用者圖片和上傳圖片的表單 -->
-                                            <div class="d-flex mb-5">
+                                            <div class="d-flex mb-5 px-3">
                                                 <div class="me-3">
                                                     <?php if (!empty($row["image_path"])): ?>
                                                         <img src="./user_images/<?= htmlspecialchars($row["image_path"]) ?>" alt="使用者圖片"
@@ -192,7 +191,7 @@ $userCount = $result->num_rows;
                                                     <div class="d-flex">
                                                         <!-- 預設頭像選項 -->
                                                         <label>
-                                                            <input type="radio" name="default_avatar" value="avatar1.png" onclick="previewDefaultAvatar('default_1.png')">
+                                                            <input type="radio" name="default_avatar" value="default_1.png" onclick="previewDefaultAvatar('default_1.png')">
                                                             <img src="./user_images/default_1.png" class="rounded-circle" width="60">
                                                         </label>
                                                         <label>
@@ -208,7 +207,7 @@ $userCount = $result->num_rows;
                                                             <img src="./user_images/default_4.png" class="rounded-circle" width="60">
                                                         </label>
                                                     </div>
-                                                    <label for="image" class="form-label text-nowp">或是上傳新頭像</label>
+                                                    <label for="user_upload_image" class="form-label text-nowrap">或是上傳新頭像</label>
                                                     <input type="file" class="form-control" name="user_upload_image" id="user_upload_image" onchange="previewImage(event)" accept=".jpg, .jpeg, .png, .gif">
                                                 </div>
                                             </div>
@@ -274,7 +273,8 @@ $userCount = $result->num_rows;
     <?php include("../js.php") ?>
     <script>
         function previewImage(event) {
-            const file = event.target.files[0];
+            const fileInput = event.target;
+            const file = fileInput.files[0];
             const reader = new FileReader();
 
             reader.onload = function(e) {
@@ -284,12 +284,20 @@ $userCount = $result->num_rows;
 
             if (file) {
                 reader.readAsDataURL(file);
+                // 取消預設頭像選擇
+                document.querySelectorAll('input[name="default_avatar"]').forEach(radio => {
+                    radio.checked = false;
+                });
             }
         }
 
         function previewDefaultAvatar(avatar) {
             const image = document.getElementById("imagePreview");
             image.src = './user_images/' + avatar;
+
+            // 清除已選擇的上傳圖片
+            const fileInput = document.getElementById("user_upload_image");
+            fileInput.value = ""; // 清空檔案輸入框
         }
     </script>
 </body>

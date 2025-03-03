@@ -92,6 +92,11 @@ $rowsLocation = $resultLocation->fetch_assoc();
             color: #ffffff;
             background: rgba(255, 115, 0, 0.9);
         }
+
+        .h-size1{
+            max-width: 500px;
+           
+        }
     </style>
 
 </head>
@@ -233,7 +238,7 @@ $rowsLocation = $resultLocation->fetch_assoc();
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程照片</label>
                         <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white text-start"><img class="object-fit-cover" src="./course_images/<?= $rowImg["image"] ?>"></h4>
+                            <h4 class="mb-0 bg-white text-start"><img class="object-fit-cover h-size1" src="./course_images/<?= $rowImg["image"] ?>"></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">

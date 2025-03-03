@@ -172,7 +172,7 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
                             <div class="col-md-4">
                                 <label class="form-label">商品圖片</label>
                                 <div class="mb-3">
-                                    <input type="file" class="form-control" id="product_image" name="product_image" accept="image/*" required onchange="previewImage(event)">
+                                    <input type="file" class="form-control" id="product_image" name="product_image" accept="image/*" onchange="previewImage(event)">
                                 </div>
                                 <div class="mb-3">
                                     <img id="imagePreview" src="https://via.placeholder.com/300x200?text=預覽圖片" class="img-fluid border">

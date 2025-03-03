@@ -137,7 +137,7 @@ $products = $stmt->fetchAll();
                     <span>課程管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="../pet-hotel/hotel-list.php">
                     <i class="fa-solid fa-user"></i>
                     <span>旅館管理</span></a>
             </li>
@@ -241,8 +241,8 @@ $products = $stmt->fetchAll();
                         </div>
                     </form>
                     <div class="py-2">
-                        <a class="btn btn-primary" href="index.php"><i class="fa-solid fa-arrow-left fa-fw"></i> 回首頁</a>
-                        <a class="btn btn-success float-end" href="create_product.php"><i class="fa-solid fa-plus fa-fw"></i> 新增商品</a>
+                        
+                        <a class="btn btn-success float-end mb-3" href="create_product.php"><i class="fa-solid fa-plus fa-fw"></i> 新增商品</a>
                     </div>
                     <?php if (count($products) > 0): ?>
                         <table class="table table-bordered table-striped mt-3">

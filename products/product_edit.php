@@ -85,7 +85,7 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
                     <span>課程管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="../pet-hotel/hotel-list.php">
                     <i class="fa-solid fa-user"></i>
                     <span>旅館管理</span></a>
             </li>
@@ -242,7 +242,21 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
     </div>
     </div>
 
+    <script>
+        function previewImage(event) {
+            var input = event.target;
+            var reader = new FileReader();
 
+            reader.onload = function() {
+                var imgElement = document.getElementById("imagePreview");
+                imgElement.src = reader.result;
+            };
+
+            if (input.files && input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 
 </body>
 

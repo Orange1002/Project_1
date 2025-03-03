@@ -70,7 +70,7 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
                     <span>課程管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="../pet-hotel/hotel-list.php">
                     <i class="fa-solid fa-user"></i>
                     <span>旅館管理</span></a>
             </li>

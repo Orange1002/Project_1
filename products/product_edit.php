@@ -1,48 +1,25 @@
 <?php
-if (!isset($_GET["id"])) {
-    header("location: course.php");
+require_once("../pdo_connect_bark_bijou.php");
+
+
+$product_id = $_GET['id'] ?? null;
+
+if (!$product_id) {
+    die("❌ 錯誤：缺少商品 ID");
 }
-$id = $_GET["id"];
-
-require_once("../db_connect_bark_bijou.php");
-$sql = "SELECT * FROM course WHERE id = $id AND valid=1";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-
-$sqlImg = "SELECT course.*, 
-       (SELECT image FROM course_img WHERE course_img.course_id = course.id LIMIT 1) AS image
-FROM course
-WHERE course.id = $id AND course.valid = 1;
-";
-$resultImg = $conn->query($sqlImg);
-$rowImg = $resultImg->fetch_assoc();
-
-$sqlTeacher = "SELECT course.*, 
-       (SELECT name FROM course_teacher WHERE course_teacher.course_id = course.id LIMIT 1) AS teacher_name, 
-       (SELECT phone FROM course_teacher WHERE course_teacher.course_id = course.id LIMIT 1) AS phone
-FROM course
-WHERE course.id = $id AND course.valid = 1;
-";
-$resultTeacher = $conn->query($sqlTeacher);
-$rowTeacher = $resultTeacher->fetch_assoc();
-
-$sqlMethod = "SELECT course.*,course_method.name AS method_name 
-    FROM course 
-    JOIN course_method ON course.method_id = course_method.id
-    WHERE course.id = $id AND course.valid = 1;
-";
-$resultMethod = $conn->query($sqlMethod);
-$rowsMethod = $resultMethod->fetch_assoc();
 
 
-$sqlLocation = "SELECT course.*,adress
-    FROM course 
-    JOIN course_location ON course.location_id = course_location.id
-    WHERE course.id = $id AND course.valid = 1;
-";
-$resultLocation = $conn->query($sqlLocation);
-$rowsLocation = $resultLocation->fetch_assoc();
+$stmt = $db_host->prepare("SELECT * FROM products WHERE id = :id");
+$stmt->execute([':id' => $product_id]);
+$product = $stmt->fetch();
 
+$stmt = $db_host->prepare("SELECT img_url FROM product_images WHERE product_id = :id LIMIT 1");
+$stmt->execute([':id' => $product_id]);
+$image = $stmt->fetch();
+$product_image = $image['img_url'] ?? 'uploads/default.png';
+
+$vendors = $db_host->query("SELECT * FROM vendors")->fetchAll();
+$categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -56,7 +33,7 @@ $rowsLocation = $resultLocation->fetch_assoc();
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>課程內容</title>
+    <title>Bark & Bijou</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -69,36 +46,10 @@ $rowsLocation = $resultLocation->fetch_assoc();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <?php include("../css.php") ?>
     <link href="./style.css" rel="stylesheet">
+    <link href="./courseStyle.css" rel="stylesheet">
 
-    <style>
-        .box1 {
-            height: 100px;
-        }
-
-        .px-12 {
-            padding-inline: 12px;
-        }
-
-        .btn-orange:link,
-        .btn-orange:visited {
-            color: #ffffff;
-            background: rgb(255, 115, 0);
-        }
-
-        .btn-orange:hover,
-        .btn-orange:active {
-            color: #ffffff;
-            background: rgba(255, 115, 0, 0.9);
-        }
-
-        .h-size1{
-            max-width: 500px;
-           
-        }
-    </style>
-
+    <?php include("../css.php") ?>
 </head>
 
 <body id="page-top">
@@ -123,7 +74,7 @@ $rowsLocation = $resultLocation->fetch_assoc();
                     <span>會員專區</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="products.php">
                     <i class="fa-solid fa-user"></i>
                     <span>商品列表</span></a>
             </li>
@@ -221,90 +172,103 @@ $rowsLocation = $resultLocation->fetch_assoc();
                     </ul>
                 </nav>
                 <!-- End of Topbar -->
-                <div class="container mb-4 text-center">
-                    <h1 class="h1 mb-0 text-gray-800 fw-bold">課程內容</h1>
-                    <div class="d-flex justify-content-center mt-3">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程名稱</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["name"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程內容</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["content"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程照片</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white text-start"><img class="object-fit-cover h-size1" src="./course_images/<?= $rowImg["image"] ?>"></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程金額</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start">$<?= number_format($row["cost"]) ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程方法</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $rowsMethod["method_name"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程地點</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $rowsLocation["adress"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">教師資訊</label>
-                        <div class="col-6 p-0">
-                            <div class="bg-info d-flex align-items-center py-3 px-12">
-                                <h4 class="mb-0 bg-white col text-start"><?= $rowTeacher["teacher_name"] ?></h4>
-                            </div>
-                            <div class="bg-info d-flex align-items-center py-3 px-12">
-                                <h4 class="mb-0 bg-white col text-start"><?= $rowTeacher["phone"] ?></h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">報名日期</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["registration_start"] ?></h4>
-                            <h4 class="mx-2 text-white">~</h4>
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["registration_end"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程日期</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["course_start"] ?></h4>
-                            <h4 class="mx-2 text-white">~</h4>
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["course_end"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center justify-content-center">編輯</label>
-                        <div class="col-6 bg-primary d-flex align-items-center justify-content-between py-3">
-                            <a href="course.php" class="btn btn-orange">返回</a>
-                            <a class="btn btn-orange" href="course_edit.php?id=<?= $row["id"] ?>">編輯</a>
-                        </div>
-                    </div>
-
-                </div>
                 <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">商品編輯</h1>
+                    </div>
+                    <div class="py-2">
+                        <a class="btn btn-primary" href="products.php"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
+                    </div>
+                    <form action="process_edit_product.php" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="product_id" value="<?= htmlspecialchars($product["id"]) ?>">
 
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">目前商品圖片</label>
+                                <div class="mb-3">
+                                    <img id="imagePreview" src="<?= htmlspecialchars($product_image) ?>" class="img-fluid border">
+                                </div>
+                                <label class="form-label">更換圖片（選填）</label>
+                                <input type="file" class="form-control" id="product_image" name="product_image" accept="image/*" onchange="previewImage(event)">
+                            </div>
+
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="product_name" class="form-label">商品名稱</label>
+                                    <input type="text" class="form-control" id="product_name" name="product_name" value="<?= htmlspecialchars($product["product_name"]) ?>" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="vendor_id" class="form-label">供應商</label>
+                                    <select class="form-control" id="vendor_id" name="vendor_id" required>
+                                        <?php foreach ($vendors as $vendor): ?>
+                                            <option value="<?= $vendor['vendor_id'] ?>" <?= $vendor['vendor_id'] == $product["vendor_id"] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($vendor['vendor_name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="category_id" class="form-label">產品分類</label>
+                                    <select class="form-control" id="category_id" name="category_id" required>
+                                        <?php foreach ($categories as $category): ?>
+                                            <option value="<?= $category['category_id'] ?>" <?= $category['category_id'] == $product["category_id"] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($category['category_name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="price" class="form-label">價格 (TWD)</label>
+                                    <input type="number" class="form-control" id="price" name="price" value="<?= $product["price"] ?>" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="stock" class="form-label">庫存</label>
+                                    <input type="number" class="form-control" id="stock" name="stock" value="<?= $product["stock"] ?>" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">商品描述</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3"><?= htmlspecialchars($product["description"]) ?></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-success"><i class="fa-solid fa-save fa-fw"></i> 更新商品</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="float-end">
+                        <div>
+                            <form action="process_update_status.php" method="POST">
+                                <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                                <button type="submit" name="status" value="<?= ($product['status'] === 'active') ? 'inactive' : 'active' ?>"
+                                    class="btn <?= ($product['status'] === 'active') ? 'btn-danger' : 'btn-success' ?> ">
+                                    <?= ($product['status'] === 'active') ? '🔴 下架商品' : '🟢 上架商品' ?>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="text-end">
+                            <?php if ($product["status"] === 'active'): ?>
+                                <span class="badge bg-success ">上架中</span>
+                            <?php else: ?>
+                                <span class="badge bg-secondary ">已下架</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <!-- End of Page Wrapper -->
             </div>
+            <!-- Scroll to Top Button-->
         </div>
+    </div>
+    </div>
+
+
+
 </body>
-
-
-<?php include("../js.php") ?>
-<script>
-
-</script>
 
 </html>

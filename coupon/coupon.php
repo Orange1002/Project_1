@@ -1,47 +1,56 @@
 <?php
-if (!isset($_GET["id"])) {
-    header("location: course.php");
+require_once("../pdo_connect_bark_bijou.php");
+
+// 設定每頁顯示 10 筆資料
+$perPage = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $perPage;
+
+// 取得優惠券總數
+$sqlTotal = "SELECT COUNT(*) as total FROM coupon";
+$stmtTotal = $db_host->query($sqlTotal);
+$totalCoupons = $stmtTotal->fetch(PDO::FETCH_ASSOC)['total'];
+$totalPages = ceil($totalCoupons / $perPage);
+
+// 取得優惠券列表
+$search = $_GET['search'] ?? ""; // 取得搜尋關鍵字
+$sort = $_GET['sort'] ?? "coupon_id_desc"; // 取得排序方式，預設為 ID 降序
+
+// 允許的排序欄位（防止 SQL Injection）
+$sortOptions = [
+    "coupon_id_desc" => "coupon_id DESC",
+    "coupon_id_asc" => "coupon_id ASC",
+    "code" => "code ASC",
+    "discount_type" => "discount_type ASC",
+    "discount_value" => "discount_value DESC",
+    "start_date" => "start_date DESC",
+    "end_date" => "end_date ASC",
+    "usage_limit" => "usage_limit ASC",
+    "min_order_amount" => "min_order_amount ASC"
+];
+
+// 如果傳入的排序參數不在允許的範圍內，則使用預設值
+$orderBy = $sortOptions[$sort] ?? "coupon_id DESC";
+
+// 構建 SQL
+$sql = "SELECT * FROM coupon WHERE valid = 1";
+
+if (!empty($search)) {
+    $sql .= " AND code LIKE :search";
 }
-$id = $_GET["id"];
 
-require_once("../db_connect_bark_bijou.php");
-$sql = "SELECT * FROM course WHERE id = $id AND valid=1";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
+$sql .= " ORDER BY $orderBy LIMIT :offset, :perPage";
 
-$sqlImg = "SELECT course.*, 
-       (SELECT image FROM course_img WHERE course_img.course_id = course.id LIMIT 1) AS image
-FROM course
-WHERE course.id = $id AND course.valid = 1;
-";
-$resultImg = $conn->query($sqlImg);
-$rowImg = $resultImg->fetch_assoc();
+$stmt = $db_host->prepare($sql);
 
-$sqlTeacher = "SELECT course.*, 
-       (SELECT name FROM course_teacher WHERE course_teacher.course_id = course.id LIMIT 1) AS teacher_name, 
-       (SELECT phone FROM course_teacher WHERE course_teacher.course_id = course.id LIMIT 1) AS phone
-FROM course
-WHERE course.id = $id AND course.valid = 1;
-";
-$resultTeacher = $conn->query($sqlTeacher);
-$rowTeacher = $resultTeacher->fetch_assoc();
+if (!empty($search)) {
+    $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+}
 
-$sqlMethod = "SELECT course.*,course_method.name AS method_name 
-    FROM course 
-    JOIN course_method ON course.method_id = course_method.id
-    WHERE course.id = $id AND course.valid = 1;
-";
-$resultMethod = $conn->query($sqlMethod);
-$rowsMethod = $resultMethod->fetch_assoc();
-
-
-$sqlLocation = "SELECT course.*,adress
-    FROM course 
-    JOIN course_location ON course.location_id = course_location.id
-    WHERE course.id = $id AND course.valid = 1;
-";
-$resultLocation = $conn->query($sqlLocation);
-$rowsLocation = $resultLocation->fetch_assoc();
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
+$stmt->execute();
+$coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -56,7 +65,7 @@ $rowsLocation = $resultLocation->fetch_assoc();
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>課程內容</title>
+    <title>Bark & Bijou</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -69,39 +78,18 @@ $rowsLocation = $resultLocation->fetch_assoc();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <?php include("../css.php") ?>
     <link href="./style.css" rel="stylesheet">
+    <link href="./courseStyle.css" rel="stylesheet">
 
-    <style>
-        .box1 {
-            height: 100px;
-        }
-
-        .px-12 {
-            padding-inline: 12px;
-        }
-
-        .btn-orange:link,
-        .btn-orange:visited {
-            color: #ffffff;
-            background: rgb(255, 115, 0);
-        }
-
-        .btn-orange:hover,
-        .btn-orange:active {
-            color: #ffffff;
-            background: rgba(255, 115, 0, 0.9);
-        }
-
-        .h-size1{
-            max-width: 500px;
-           
-        }
-    </style>
-
+    <?php include("../css.php") ?>
 </head>
 
 <body id="page-top">
+    <?php if (isset($_GET['restored'])): ?>
+        <script>
+            alert("優惠券已還原成功！");
+        </script>
+    <?php endif; ?>
 
     <!-- Page Wrapper -->
     <div id="wrapper">
@@ -123,7 +111,7 @@ $rowsLocation = $resultLocation->fetch_assoc();
                     <span>會員專區</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="products.php">
                     <i class="fa-solid fa-user"></i>
                     <span>商品列表</span></a>
             </li>
@@ -221,90 +209,103 @@ $rowsLocation = $resultLocation->fetch_assoc();
                     </ul>
                 </nav>
                 <!-- End of Topbar -->
-                <div class="container mb-4 text-center">
-                    <h1 class="h1 mb-0 text-gray-800 fw-bold">課程內容</h1>
-                    <div class="d-flex justify-content-center mt-3">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程名稱</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["name"] ?></h4>
-                        </div>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">優惠卷管理</h1>
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程內容</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["content"] ?></h4>
-                        </div>
+
+
+                    <form class="d-flex justify-content-end" method="GET" action="coupon.php">
+                        <select class="form-select me-2 col-2" name="sort" onchange="this.form.submit()">
+                            <option value="coupon_id_desc" <?= ($_GET['sort'] ?? '') == 'coupon_id_desc' ? 'selected' : '' ?>>ID (降序)</option>
+                            <option value="coupon_id_asc" <?= ($_GET['sort'] ?? '') == 'coupon_id_asc' ? 'selected' : '' ?>>ID (升序)</option>
+                            <option value="code" <?= ($_GET['sort'] ?? '') == 'code' ? 'selected' : '' ?>>代碼</option>
+                            <option value="discount_type" <?= ($_GET['sort'] ?? '') == 'discount_type' ? 'selected' : '' ?>>折扣類型</option>
+                            <option value="discount_value" <?= ($_GET['sort'] ?? '') == 'discount_value' ? 'selected' : '' ?>>折扣值</option>
+                            <option value="start_date" <?= ($_GET['sort'] ?? '') == 'start_date' ? 'selected' : '' ?>>開始日期</option>
+                            <option value="end_date" <?= ($_GET['sort'] ?? '') == 'end_date' ? 'selected' : '' ?>>結束日期</option>
+                            <option value="usage_limit" <?= ($_GET['sort'] ?? '') == 'usage_limit' ? 'selected' : '' ?>>使用上限</option>
+                            <option value="min_order_amount" <?= ($_GET['sort'] ?? '') == 'min_order_amount' ? 'selected' : '' ?>>最低訂單金額</option>
+                        </select>
+
+                        <input class="form-control me-2 col-3" type="search" name="search" placeholder="搜尋優惠券代碼" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                        <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+
+
+                    <div class="p-2">
+                        <a class="btn btn-primary" href="index.php"><i class="fa-solid fa-arrow-left fa-fw"></i> 回首頁</a>
+
+                        <a class="btn btn-success float-end" href="create_coupon.php"><i class="fa-solid fa-plus fa-fw"></i> 新增優惠券</a>
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程照片</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white text-start"><img class="object-fit-cover h-size1" src="./course_images/<?= $rowImg["image"] ?>"></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程金額</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start">$<?= number_format($row["cost"]) ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程方法</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $rowsMethod["method_name"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程地點</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $rowsLocation["adress"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">教師資訊</label>
-                        <div class="col-6 p-0">
-                            <div class="bg-info d-flex align-items-center py-3 px-12">
-                                <h4 class="mb-0 bg-white col text-start"><?= $rowTeacher["teacher_name"] ?></h4>
-                            </div>
-                            <div class="bg-info d-flex align-items-center py-3 px-12">
-                                <h4 class="mb-0 bg-white col text-start"><?= $rowTeacher["phone"] ?></h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">報名日期</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["registration_start"] ?></h4>
-                            <h4 class="mx-2 text-white">~</h4>
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["registration_end"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程日期</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["course_start"] ?></h4>
-                            <h4 class="mx-2 text-white">~</h4>
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["course_end"] ?></h4>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center justify-content-center">編輯</label>
-                        <div class="col-6 bg-primary d-flex align-items-center justify-content-between py-3">
-                            <a href="course.php" class="btn btn-orange">返回</a>
-                            <a class="btn btn-orange" href="course_edit.php?id=<?= $row["id"] ?>">編輯</a>
-                        </div>
-                    </div>
+
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>代碼</th>
+                                <th>折扣類型</th>
+                                <th>折扣值</th>
+                                <th>開始日期</th>
+                                <th>結束日期</th>
+                                <th>使用上限</th>
+                                <th>最低訂單金額</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($coupons as $coupon): ?>
+                                <tr>
+                                    <td><?= $coupon['coupon_id'] ?></td>
+                                    <td><?= htmlspecialchars($coupon['code']) ?></td>
+                                    <td><?= htmlspecialchars($coupon['discount_type']) ?></td>
+                                    <td>
+                                        <?php if ($coupon['discount_type'] == 'percentage'): ?>
+                                            <?= intval($coupon['discount_value']) ?>%
+                                        <?php else: ?>
+                                            <?= intval($coupon['discount_value']) ?> TWD
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <td><?= $coupon['start_date'] ?></td>
+                                    <td><?= $coupon['end_date'] ?></td>
+                                    <td><?= $coupon['usage_limit'] ?? '無限制' ?></td>
+                                    <td><?= number_format($coupon['min_order_amount'], 0) ?> TWD</td>
+                                    <td>
+                                        <a href="coupon_edit.php?id=<?= $coupon['coupon_id'] ?>" class="btn btn-warning btn-sm">編輯</a>
+                                        <a href="coupon_delete.php?id=<?= $coupon['coupon_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('確定要刪除嗎？')">刪除</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+
+                    <nav>
+                        <ul class="pagination">
+                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <li class="page-item<?= ($i == $page) ? ' active' : '' ?>">
+                                    <a class="page-link" href="?page=<?= $i ?>">第 <?= $i ?> 頁</a>
+                                </li>
+                            <?php endfor; ?>
+                        </ul>
+                    </nav>
+
+                    <a class="btn btn-secondary float-end" href="coupon_disabled.php"><i class="fa-solid fa-eye"></i> 查看已停用優惠券</a>
 
                 </div>
-                <!-- Begin Page Content -->
-
+                <!-- End of Page Wrapper -->
             </div>
+            <!-- Scroll to Top Button-->
         </div>
+    </div>
+    </div>
+
+
+
 </body>
-
-
-<?php include("../js.php") ?>
-<script>
-
-</script>
 
 </html>

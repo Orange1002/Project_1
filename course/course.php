@@ -5,12 +5,31 @@ require_once("../db_connect_bark_bijou.php");
 $sqlAll = $sql = "SELECT * FROM course WHERE valid=1";
 $resultAll = $conn->query($sqlAll);
 $courseCount = $resultAll->num_rows;
+$p = 1;
+$order = 2;
 
-if (isset($_GET["q"])) {
-} else if (isset($_GET["p"]) && isset($_GET["order"])) {
-    $p = $_GET["p"];
+if (isset($_GET["q"]) && isset($_GET["category"])) {
+    $q = $_GET["q"];
+    $category_id = $_GET["category"];
+    $WhereClause = "AND name LIKE'%$q%' AND course.method_id= $category_id";
+} else if (isset($_GET["category"])) {
+    $category_id = $_GET["category"];
+    $WhereClause = "AND course.method_id= $category_id";
+} else if (isset($_GET["q"]) && $_GET["q"] !== "") {
+    $q = $_GET["q"];
+    $WhereClause = "AND name LIKE'%$q%'";
+    $p = 1;
+    $order = 2;
+} else if (isset($_GET["q"]) && $_GET["q"] === "") {
+    header("location: course.php?p=1&order=2");
+} else {
+    $WhereClause = "";
+}
+
+$orderClause = "";
+
+if (isset($_GET["order"])) {
     $order = $_GET["order"];
-    $orderClause = "";
     switch ($order) {
         case 1:
             $orderClause = "ORDER BY registration_start ASC";
@@ -25,23 +44,25 @@ if (isset($_GET["q"])) {
             $orderClause = "ORDER BY cost DESC";
             break;
     }
-    $perPage = 5;
-    $startItem = ($p - 1) * $perPage;
-    $totalPage = ceil($courseCount / $perPage);
-
-    $sql = "SELECT * FROM course WHERE valid=1 $orderClause LIMIT $startItem,$perPage";
-} else {
-    header("location: course.php?p=1&order=2");
-    exit;
 }
 
-$result = $conn->query($sql);
-$rows = $result->fetch_all(MYSQLI_ASSOC);
+if (isset($_GET["p"])) {
+    $p = $_GET["p"];
+}
+
+$perPage = 5;
+$startItem = ($p - 1) * $perPage;
+$totalPage = ceil($courseCount / $perPage);
+
+
+if (!isset($_GET["q"]) && !isset($_GET["category"]) && !isset($_GET["p"]) && !isset($_GET["order"])) {
+    header("location: course.php?p=1&order=2");
+}
 
 $sqlImg = "SELECT course.*, 
        (SELECT image FROM course_img WHERE course_img.course_id = course.id LIMIT 1) AS image
 FROM course
-WHERE course.valid = 1;
+WHERE course.valid = 1 $WhereClause $orderClause LIMIT $startItem,$perPage
 ";
 $resultImg = $conn->query($sqlImg);
 $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
@@ -93,7 +114,7 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
         .btn-orange:hover,
         .btn-orange:active {
             color: #ffffff;
-            background:rgba(255, 115, 0, 0.9);
+            background: rgba(255, 115, 0, 0.9);
         }
     </style>
 
@@ -106,7 +127,7 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
         <!-- Sidebar -->
         <ul class="navbar-nav sidebar sidebar-dark accordion primary" id="accordionSidebar">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
@@ -116,32 +137,32 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
             <hr class="sidebar-divider my-0">
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="">
                     <i class="fa-solid fa-user"></i>
                     <span>會員專區</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="">
                     <i class="fa-solid fa-user"></i>
                     <span>商品列表</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="course.php?p=1&order=2">
                     <i class="fa-solid fa-user"></i>
                     <span>課程管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="">
                     <i class="fa-solid fa-user"></i>
                     <span>旅館管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="">
                     <i class="fa-solid fa-user"></i>
                     <span>文章管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="">
                     <i class="fa-solid fa-user"></i>
                     <span>優惠券管理</span></a>
             </li>
@@ -226,17 +247,71 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                         <h1 class="h1 mb-0 text-gray-800 fw-bold">課程列表</h1>
                         <a class="btn btn-orange" href="add_course.php">新增課程</a>
                     </div>
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <div></div>
+                    <div class="d-sm-flex align-items-center mb-4">
                         總共<?= $courseCount ?>筆
-                        <div class="dropdown">
+                        <form action="" class="ms-3">
+                            <div class="input-group">
+                                <input type="search" class="form-control" name="q"
+                                    <?php
+                                    $q = "";
+                                    // if(isset($_GET["q"])){
+                                    //     $q = $_GET["q"];
+                                    // } 第一種
+
+                                    // $q = (isset($_GET["q"]))?
+                                    // $_GET["q"] :""; 第二種(一定要有if,else)
+
+                                    $q = $_GET["q"] ?? ""; //第三種(一定要有if,else)           
+                                    ?>
+                                    value="<?= $q ?>">
+                                <button class="btn btn-orange"><i class="fa-solid fa-magnifying-glass fa-fw" type="submit"></i></button>
+                            </div>
+                        </form>
+                        <div class="dropdown ms-auto">
+                            <a class="btn btn-orange dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="dropdown">
+                                <?php
+                                if (isset($category_id)) {
+                                    switch ($category_id) {
+                                        case 1:
+                                            echo "線上";
+                                            break;
+                                        case 2:
+                                            echo "線下";
+                                            break;
+                                    }
+                                } else {
+                                    echo "全部";
+                                }
+                                ?>
+                            </a>
+                            <ul class="dropdown-menu btn-orange">
+                                <li><a class="dropdown-item" href="course.php?p=1<?php if (isset($_GET["order"]) || isset($order)) {
+                                                                                        echo '&order=' . $order;
+                                                                                    } ?><?php if (isset($_GET["q"])) {
+                                                                                            echo '&q=' . $q;
+                                                                                        } ?>">全部</a></li>
+                                <li><a class="dropdown-item" href="course.php?p=1<?php if (isset($_GET["order"]) || isset($order)) {
+                                                                                        echo '&order=' . $order;
+                                                                                    } ?>&category=1<?php if (isset($_GET["q"])) {
+                                                                                                        echo '&q=' . $q;
+                                                                                                    } ?>">線上</a></li>
+                                <li><a class="dropdown-item" href="course.php?p=1<?php if (isset($_GET["order"]) || isset($order)) {
+                                                                                        echo '&order=' . $order;
+                                                                                    } ?>&category=2<?php if (isset($_GET["q"])) {
+                                                                                                        echo '&q=' . $q;
+                                                                                                    } ?>">線下</a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown ms-3">
                             <a class="btn btn-orange dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="dropdown">
                                 <?php
                                 switch ($order) {
                                     case 1:
-                                        echo "按上架時間排序 ↓";
+                                        echo "按時間排序 ↓";
                                         break;
                                     case 2:
-                                        echo "按上架時間排序 ↑";
+                                        echo "按時間排序 ↑";
                                         break;
                                     case 3:
                                         echo "按價格排序 ↓";
@@ -248,10 +323,26 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                 ?>
                             </a>
                             <ul class="dropdown-menu btn-orange">
-                                <li><a class="dropdown-item" href="course.php?p=1&order=1">按上架時間排序 ↓</a></li>
-                                <li><a class="dropdown-item" href="course.php?p=1&order=2">按上架時間排序 ↑</a></li>
-                                <li><a class="dropdown-item" href="course.php?p=1&order=3">按價格排序 ↓</a></li>
-                                <li><a class="dropdown-item" href="course.php?p=1&order=4">按價格排序 ↑</a></li>
+                                <li><a class="dropdown-item" href="course.php?p=1&order=1<?php if (isset($_GET["category"])) {
+                                                                                                echo '&category=' . $category_id;
+                                                                                            } ?><?php if (isset($_GET["q"])) {
+                                                                                                    echo '&q=' . $q;
+                                                                                                } ?>">按時間排序 ↓</a></li>
+                                <li><a class="dropdown-item" href="course.php?p=1&order=2<?php if (isset($_GET["category"])) {
+                                                                                                echo '&category=' . $category_id;
+                                                                                            } ?><?php if (isset($_GET["q"])) {
+                                                                                                    echo '&q=' . $q;
+                                                                                                } ?>">按時間排序 ↑</a></li>
+                                <li><a class="dropdown-item" href="course.php?p=1&order=3<?php if (isset($_GET["category"])) {
+                                                                                                echo '&category=' . $category_id;
+                                                                                            } ?><?php if (isset($_GET["q"])) {
+                                                                                                    echo '&q=' . $q;
+                                                                                                } ?>">按價格排序 ↓</a></li>
+                                <li><a class="dropdown-item" href="course.php?p=1&order=4<?php if (isset($_GET["category"])) {
+                                                                                                echo '&category=' . $category_id;
+                                                                                            } ?><?php if (isset($_GET["q"])) {
+                                                                                                    echo '&q=' . $q;
+                                                                                                } ?>">按價格排序 ↑</a></li>
                             </ul>
                         </div>
                     </div>
@@ -300,13 +391,13 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                             </tbody>
                         </table>
                     </div>
-                    <?php if (isset($_GET["p"])): ?>
+                    <?php if (isset($_GET["p"]) || isset($p)): ?>
                         <div>
                             <nav aria-label="">
                                 <ul class="pagination">
                                     <?php for ($i = 1; $i <= $totalPage; $i++): ?>
                                         <?php
-                                        $active = ($i == $_GET["p"]) ? "active" : "";
+                                        $active = ($i == $_GET["p"] || $i == $p) ? "active" : "";
                                         ?>
                                         <li class="page-item <?= $active ?>">
                                             <a class="page-link" href="course.php?p=<?= $i ?>&order=<?= $order ?>"><?= $i ?></a>

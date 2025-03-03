@@ -25,11 +25,11 @@ if (strlen($password) < 4 || strlen($password) > 20) {
 }
 
 $password = md5($password);
-$sql = "SELECT account, name, email, phone FROM users WHERE account='$account' AND password='$password'";
-
+$sql = "SELECT * FROM users WHERE account='$account' AND password='$password'";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $userCount = $result->num_rows;
+echo $userCount;
 
 if ($userCount == 0) {
     if (!isset($_SESSION["error"]["times"])) {
@@ -47,4 +47,5 @@ if ($userCount == 0) {
 unset($_SESSION["error"]);
 $_SESSION["user"] = $row;
 $conn->close();
-header("location: homepage.php");
+
+header("location: users.php?");

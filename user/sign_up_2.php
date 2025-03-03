@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!doctype html>
 <html lang="en">
 
@@ -13,7 +16,7 @@
 
 <body>
     <div class="container">
-        <div class="row justify-content-start align-items-center vh-100">
+        <div class="row justify-content-center align-items-center vh-100">
             <div class="col-lg-4 col-md-6">
                 <h3>註冊 - 步驟 2</h3>
                 <div class="mt-3">

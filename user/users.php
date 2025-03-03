@@ -1,6 +1,10 @@
 <?php
+session_start();
+if (!isset($_SESSION["user"])) {
+    header("location: sign_in.php");
+    exit;
+}
 require_once("../db_connect_bark_bijou.php");
-
 // 先查詢所有使用者的數量
 $sqlAll = "SELECT users.*, COALESCE(gender.name, '未填寫') AS gender_name 
            FROM users
@@ -55,7 +59,7 @@ if (isset($_GET["order"])) {
 }
 
 // 分頁處理
-$perPage = 7;
+$perPage = 10;
 $p = isset($_GET["p"]) ? $_GET["p"] : 1;
 $startItem = ($p - 1) * $perPage;
 $totalPage = ceil($userCount / $perPage);
@@ -162,7 +166,7 @@ if (isset($_GET["q"])) {
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
-        <ul class="navbar-nav sidebar sidebar-dark accordion primary" id="accordionSidebar">
+        <ul class="navbar-nav sidebar sidebar-dark accordion bg-warning" id="accordionSidebar">
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon rotate-n-15">
@@ -242,46 +246,10 @@ if (isset($_GET["q"])) {
                                 </form>
                             </div>
                         </li>
-                        <!-- Nav Item - Alerts -->
-                        <!-- Nav Item - Messages -->
-                        <div class="topbar-divider d-none d-sm-block"></div>
                         <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Hi, </span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
-                                <div class="ms-auto">
-                                    <?php if (isset($_SESSION['user'])) : ?>
-                                        <span class="me-2">Hi, <?= htmlspecialchars($_SESSION['user']['name']); ?></span>
-                                        <a href="logout.php" class="btn btn-danger">登出</a>
-                                    <?php else : ?>
-                                        <span class="me-2">Hi, Guest</span>
-                                        <a href="login.php" class="btn btn-primary">登入</a>
-                                    <?php endif; ?>
-                                </div>
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
-                                </a>
-                            </div>
+                        <span class="fs-5 me-3">Hi, <?= $_SESSION["user"]["account"] ?></span>
+                        <a href="doLogout.php" class="btn btn-danger">登出</a>
+                        <!-- Dropdown - User Information -->
                         </li>
                     </ul>
                 </nav>
@@ -314,7 +282,7 @@ if (isset($_GET["q"])) {
                     </div>
                     <div class="d-sm-flex align-items-center justify-content-between">
                         <div class="container-fluid">
-                            <div class="py-2 row g-3 align-items-center">
+                            <div class="py-2 row g-3 align-items-center mb-3">
                                 <div class="col-md-4">
                                     <div class="hstack gap-2 align-item-center">
                                         <?php if (isset($_GET["q"])) : ?>
@@ -352,7 +320,7 @@ if (isset($_GET["q"])) {
                                         <div class="col-5">
                                             <form action="" method="get">
                                                 <div class="input-group">
-                                                    <input type="search" class="form-control" name="q" <?php $q = "";
+                                                    <input type="search" placeholder="搜尋使用者" class="form-control" name="q" <?php $q = "";
                                                                                                         $q = $_GET["q"] ?? ""; ?>
                                                         value="<?= $q ?>">
                                                     <button class="btn btn-warning"><i class="fa-solid fa-magnifying-glass fa-fw" type="submit"></i></button>
@@ -360,13 +328,13 @@ if (isset($_GET["q"])) {
                                             </form>
                                         </div>
                                         <div class="col-1">
-                                            <a class="btn btn-warning" href="user_create.php"><i class="fa-solid fa-user-plus fa-fw"></i></a>
+                                            <a href="user_create.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-warning"><i class="fa-solid fa-user-plus fa-fw"></i></a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <?php if ($userCount > 0): ?>
-                                <table class="table table-bordered table-striped mb-3">
+                                <table class="table table-bordered table-striped mb-5">
                                     <thead>
                                         <tr>
                                             <th class="align-middle">

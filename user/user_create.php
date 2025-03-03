@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (!isset($_SESSION["user"])) {
+    header("location: sign_in.php");
+    exit;
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -16,7 +23,7 @@
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
-        <ul class="navbar-nav sidebar sidebar-dark accordion primary" id="accordionSidebar">
+        <ul class="navbar-nav sidebar sidebar-dark accordion bg-warning" id="accordionSidebar">
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon rotate-n-15">
@@ -88,7 +95,7 @@
                                             placeholder="Search for..." aria-label="Search"
                                             aria-describedby="basic-addon2">
                                         <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
+                                            <button class="btn btn-warning" type="button">
                                                 <i class="fas fa-search fa-sm"></i>
                                             </button>
                                         </div>
@@ -96,37 +103,10 @@
                                 </form>
                             </div>
                         </li>
-                        <!-- Nav Item - Alerts -->
-                        <!-- Nav Item - Messages -->
-                        <div class="topbar-divider d-none d-sm-block"></div>
                         <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
-                                </a>
-                            </div>
+                        <span class="fs-5 me-3">Hi, <?= $_SESSION["user"]["account"] ?></span>
+                        <a href="doLogout.php" class="btn btn-danger">登出</a>
+                        <!-- Dropdown - User Information -->
                         </li>
                     </ul>
                 </nav>
@@ -135,55 +115,55 @@
                 <div class="container-fluid">
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Add User</h1>
+                        <h1 class="h3 mb-0 text-gray-800">新增會員</h1>
+                    </div>
+                    <div class="py-2">
+                        <a href="users.php?p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="fs-4 btn btn-secondary"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
                     </div>
                     <div class="container">
-                        <div class="py-2">
-                            <a class="btn btn-warning" href="users.php?p=1&order=1"><i class="fa-solid fa-arrow-left fa-fw"></i>使用者列表</a>
-                        </div>
                         <form action="doCreateUser.php" method="post">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="mb-2">
-                                        <label for="name" class="form-label">使用者名稱</label>
-                                        <input type="text" class="form-control" name="name" id="name">
+                                    <div class="mb-3 px-3">
+                                        <label for="name" class="form-label fs-4">使用者名稱</label>
+                                        <input type="text" class="form-control fs-4" name="name" id="name">
                                     </div>
-                                    <div class="mb-2">
-                                        <label for="account" class="form-label">帳號</label>
-                                        <input type="text" class="form-control" name="account" id="account">
+                                    <div class="mb-3 px-3">
+                                        <label for="account" class="form-label fs-4">帳號</label>
+                                        <input type="text" class="form-control fs-4" name="account" id="account">
                                     </div>
-                                    <div class="mb-2">
-                                        <label for="password" class="form-label">密碼</label>
-                                        <input type="password" class="form-control" name="password" id="password">
+                                    <div class="mb-3 px-3">
+                                        <label for="password" class="form-label fs-4">密碼</label>
+                                        <input type="password" class="form-control fs-4" name="password" id="password">
                                     </div>
-                                    <div class="mb-2">
-                                        <label for="repassword" class="form-label">確認密碼</label>
-                                        <input type="password" class="form-control" name="repassword" id="repassword">
+                                    <div class="mb-3 px-3">
+                                        <label for="repassword" class="form-label fs-4">確認密碼</label>
+                                        <input type="password" class="form-control fs-4" name="repassword" id="repassword">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="mb-2">
-                                        <label for="gender_id" class="form-label">性別</label>
-                                        <select class="form-control" name="gender_id" id="gender_id">
+                                    <div class="mb-3 px-3">
+                                        <label for="gender_id" class="form-label fs-4">性別</label>
+                                        <select class="form-control fs-4" name="gender_id" id="gender_id">
                                             <option value="" selected>未填寫</option>
                                             <option value="1">男</option>
                                             <option value="2">女</option>
                                         </select>
                                     </div>
-                                    <div class="mb-2">
-                                        <label for="phone" class="form-label">電話</label>
-                                        <input type="tel" class="form-control" name="phone" id="phone">
+                                    <div class="mb-3 px-3">
+                                        <label for="phone" class="form-label fs-4">電話</label>
+                                        <input type="tel" class="form-control fs-4" name="phone" id="phone">
                                     </div>
-                                    <div class="mb-2">
-                                        <label for="email" class="form-label">email</label>
-                                        <input type="email" class="form-control" name="email" id="email">
+                                    <div class="mb-3 px-3">
+                                        <label for="email" class="form-label fs-4">email</label>
+                                        <input type="email" class="form-control fs-4" name="email" id="email">
                                     </div>
-                                    <div class="mb-2">
-                                        <label for="birth_date" class="form-label">出生日期</label>
-                                        <input type="date" class="form-control" name="birth_date" id="birth_date">
+                                    <div class="mb-3 px-3">
+                                        <label for="birth_date" class="form-label fs-4">出生日期</label>
+                                        <input type="date" class="form-control fs-4" name="birth_date" id="birth_date">
                                     </div>
-                                    <div class="d-flex jusyify-content-end">
-                                        <button class="btn btn-warning mt-3" type="submit">送出</button>
+                                    <div class="d-flex justify-content-end">
+                                        <button class="btn btn-warning mt-3 me-3 fs-4" type="submit">新增</button>
                                     </div>
                                 </div>
                             </div>

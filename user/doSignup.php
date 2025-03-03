@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 require_once("../db_connect_bark_bijou.php");
 
 if (!isset($_POST["account"])) {
@@ -39,13 +39,16 @@ $password = md5($password);
 
 $now = date("Y-m-d");
 $sql = "INSERT INTO users (name, gender_id, account, password, email, phone, birth_date, created_at, valid)
-	VALUES ('$name', '$gender_id', '$account', 'password', '$email', '$phone', '$birth_date', '$now', 1)";
+	VALUES ('$name', '$gender_id', '$account', '$password', '$email', '$phone', '$birth_date', '$now', 1)";
 
 if ($conn->query($sql) === TRUE) {
+    $user_id = $conn->insert_id;  // 取得剛插入資料的 ID
+    $_SESSION['user_id'] = $user_id; // 儲存使用者 ID 到 SESSION
 } else {
     echo "Error: " . $sql . "<br>" . $conn->error;
+    die;
 }
 
 $conn->close();
 
-header("location: users.php?p=1&order=1");
+header("location: sign_up_3.php");

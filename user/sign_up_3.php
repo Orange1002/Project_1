@@ -27,19 +27,19 @@ session_start();
                             <div class="d-flex">
                                 <!-- 預設頭像選項 -->
                                 <label>
-                                    <input type="radio" name="default_avatar" value="avatar1.png" checked>
+                                    <input type="radio" name="default_avatar" value="default_1.png" checked>
                                     <img src="./user_images/default_1.png" class="rounded-circle" width="120">
                                 </label>
                                 <label>
-                                    <input type="radio" name="default_avatar" value="default_1.png">
+                                    <input type="radio" name="default_avatar" value="default_2.png">
                                     <img src="./user_images/default_2.png" class="rounded-circle" width="120">
                                 </label>
                                 <label>
-                                    <input type="radio" name="default_avatar" value="default_2.png">
+                                    <input type="radio" name="default_avatar" value="default_3.png">
                                     <img src="./user_images/default_3.png" class="rounded-circle" width="120">
                                 </label>
                                 <label>
-                                    <input type="radio" name="default_avatar" value="default_3.png">
+                                    <input type="radio" name="default_avatar" value="default_4.png">
                                     <img src="./user_images/default_4.png" class="rounded-circle" width="120">
                                 </label>
                             </div>

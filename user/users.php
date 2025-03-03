@@ -286,7 +286,7 @@ if (isset($_GET["q"])) {
                                 <div class="col-md-4">
                                     <div class="hstack gap-2 align-item-center">
                                         <?php if (isset($_GET["q"])) : ?>
-                                            <a class="btn btn-warning" href="users.php"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
+                                            <a class="btn btn-warning" href="users.php?p=1&order=1"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
                                         <?php endif; ?>
                                         <div>共 <?= $userCount ?> 位使用者</div>
                                     </div>

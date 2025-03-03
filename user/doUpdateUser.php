@@ -27,7 +27,7 @@ if (isset($_POST['default_avatar'])) {
     $avatar = $_POST['default_avatar'];
 } elseif (!empty($_FILES["user_upload_image"]["name"]) && $_FILES["user_upload_image"]["error"] == 0) {
     // 使用者上傳了圖片
-    $targetDir = "../user_images/"; // 設定上傳路徑
+    $targetDir = "./user_images/"; // 設定上傳路徑
     $file_name = $_FILES["user_upload_image"]["name"];  // 原始檔名
     $imageFileType = strtolower(pathinfo($file_name, PATHINFO_EXTENSION)); // 副檔名
     $newFileName = "user_" . $id . "_" . time() . "." . $imageFileType; // 生成新檔名

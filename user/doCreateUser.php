@@ -31,5 +31,5 @@ if ($conn->query($sql) === TRUE) {
 $conn->close();
 
 header("location: user_view.php?id=$last_id");
-// header("location: users.php?p=1&order=1");
+
 

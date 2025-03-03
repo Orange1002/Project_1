@@ -175,46 +175,49 @@ WHERE products.valid = 0");
                         <h1 class="h3 mb-0 text-gray-800">商品列表</h1>
                     </div>
                     <div class="py-2">
-            <a class="btn btn-primary" href="products.php"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
-        </div>
+                        <a class="btn btn-primary" href="products.php"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
+                    </div>
 
-        <h2 class="mt-3">回收站（已刪除商品）</h2>
+                    <h2 class="mt-3">回收站（已刪除商品）</h2>
 
-        <?php if (count($products) > 0): ?>
-            <table class="table table-bordered table-striped mt-3 text-center align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>圖片</th>
-                        <th>商品名稱</th>
-                        <th>價格 (TWD)</th>
-                        <th>庫存</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($products as $product): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($product["id"]) ?></td>
-                            <td>
-                                <img src="<?= htmlspecialchars($product['img_url']) ?>" 
-                                     alt="商品圖片" class="img-thumbnail" style="width: 50px; height: 50px;">
-                            </td>
-                            <td><?= htmlspecialchars($product["product_name"]) ?></td>
-                            <td><?= number_format($product["price"]) ?> TWD</td>
-                            <td><?= $product["stock"] ?></td>
-                            <td>
-                                <a href="product_recover.php?id=<?= $product["id"] ?>" class="btn btn-success btn-sm">
-                                    <i class="fa-solid fa-undo fa-fw"></i> 還原
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <div class="alert alert-warning">回收站內沒有商品。</div>
-        <?php endif; ?>
+                    <?php if (count($products) > 0): ?>
+                        <table class="table table-bordered table-striped mt-3 text-center align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>圖片</th>
+                                    <th>商品名稱</th>
+                                    <th>價格 (TWD)</th>
+                                    <th>庫存</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($products as $product): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($product["id"]) ?></td>
+                                        <td>
+                                            <img src="<?= htmlspecialchars($product['img_url']) ?>"
+                                                alt="商品圖片" class="img-thumbnail" style="width: 50px; height: 50px;">
+                                        </td>
+                                        <td><?= htmlspecialchars($product["product_name"]) ?></td>
+                                        <td><?= number_format($product["price"]) ?> TWD</td>
+                                        <td><?= $product["stock"] ?></td>
+                                        <td>
+                                            <a href="product_recover.php?id=<?= $product["id"] ?>" class="btn btn-success btn-sm">
+                                                <i class="fa-solid fa-undo fa-fw"></i> 還原
+                                            </a>
+                                            <a href="product_delete_permanent.php?id=<?= $product["id"] ?>" class="btn btn-danger btn-sm" onclick="return confirm('確定要永久刪除這個商品嗎？');">
+                                                <i class="fa-solid fa-trash fa-fw"></i> 永久刪除
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <div class="alert alert-warning">回收站內沒有商品。</div>
+                    <?php endif; ?>
                 </div>
                 <!-- End of Page Wrapper -->
             </div>

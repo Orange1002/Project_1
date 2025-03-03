@@ -267,7 +267,21 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
     </div>
     </div>
 
+    <script>
+        function previewImage(event) {
+            var input = event.target;
+            var reader = new FileReader();
 
+            reader.onload = function() {
+                var imgElement = document.getElementById("imagePreview");
+                imgElement.src = reader.result;
+            };
+
+            if (input.files && input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 
 </body>
 

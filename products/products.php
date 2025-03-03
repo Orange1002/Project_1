@@ -48,8 +48,10 @@ $total_pages = ceil($total_items / $items_per_page);
 
 // 取得商品列表
 $sql = "SELECT products.*, 
+       vendors.vendor_name, 
        COALESCE((SELECT img_url FROM product_images WHERE product_images.product_id = products.id LIMIT 1), 'uploads/default.png') AS img_url
-    FROM products 
+    FROM products
+    LEFT JOIN vendors ON products.vendor_id = vendors.vendor_id
     WHERE products.valid = 1 AND products.product_name LIKE :search";
 
 if (!empty($category_id)) {
@@ -68,6 +70,7 @@ foreach ($params as $key => $value) {
 }
 $stmt->execute();
 $products = $stmt->fetchAll();
+
 ?>
 
 <!DOCTYPE html>
@@ -273,6 +276,7 @@ $products = $stmt->fetchAll();
                                     <th>ID</th>
                                     <th>圖片</th>
                                     <th>商品名稱</th>
+                                    <th>供應商</th>
                                     <th>價格 (TWD)</th>
                                     <th>庫存</th>
                                     <th>狀態</th>
@@ -286,6 +290,7 @@ $products = $stmt->fetchAll();
                                         <td><img src="<?= htmlspecialchars($product['img_url']) ?>"
                                                 alt="商品圖片" class="img-thumbnail" style="width: 50px; height: 50px;"></td>
                                         <td><?= htmlspecialchars($product["product_name"]) ?></td>
+                                        <td><?= htmlspecialchars($product["vendor_name"]) ?></td>
                                         <td><?= number_format($product["price"]) ?> TWD</td>
                                         <td><?= $product["stock"] ?></td>
                                         <td>

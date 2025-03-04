@@ -370,11 +370,39 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                                     break;
                                             } ?></td>
                                         <td class="align-middle"><?= $course["registration_start"] ?></td>
-                                        <td class="align-middle">在架上</td>
+                                        <td class="align-middle"><?php
+                                                                    // 假設 $course["registration_start"] 是一個日期字串
+                                                                    $registration_start = $course["registration_start"];
+
+                                                                    // 取得今天的日期
+                                                                    $today = new DateTime();
+
+                                                                    // 將 $registration_start 轉換為 DateTime 物件
+                                                                    $registration_date = new DateTime($registration_start);
+
+                                                                    // 比較日期
+                                                                    if ($registration_date->format('Y-m-d') == $today->format('Y-m-d')) {
+                                                                        // 如果 registration_start 是今天或之前
+                                                                        echo 1;
+                                                                    } else {
+                                                                        // 如果是其他情況（例如未來某天）
+                                                                        echo "未上架";
+                                                                    }
+                                                                    ?>
+
+                                        </td>
                                         <td class="align-middle">
                                             <div class="d-flex justify-content-center align-items-center">
-                                                <a class="btn btn-success" href="course_content.php?id=<?= $course["id"] ?>&p=<?=$p?>&order=<?=$order?><?php if(isset($q)){echo "&q=$q";}?><?php if(isset($category_id)){echo "&category_id=$category_id";}?>"><i class="fa-solid fa-eye"></i></i></a>
-                                                <a class="btn btn-primary ms-1" href="course_edit.php?id=<?= $course["id"] ?>&p=<?=$p?>&order=<?=$order?><?php if(isset($q)){echo "&q=$q";}?><?php if(isset($category_id)){echo "&category_id=$category_id";}?>"><i class="fa-solid fa-pen-to-square fa-fw"></i></a>
+                                                <a class="btn btn-success" href="course_content.php?id=<?= $course["id"] ?>&p=<?= $p ?>&order=<?= $order ?><?php if (isset($q)) {
+                                                                                                                                                                echo "&q=$q";
+                                                                                                                                                            } ?><?php if (isset($category_id)) {
+                                                                                                                                                                    echo "&category_id=$category_id";
+                                                                                                                                                                } ?>"><i class="fa-solid fa-eye"></i></i></a>
+                                                <a class="btn btn-primary ms-1" href="course_edit.php?id=<?= $course["id"] ?>&p=<?= $p ?>&order=<?= $order ?><?php if (isset($q)) {
+                                                                                                                                                                    echo "&q=$q";
+                                                                                                                                                                } ?><?php if (isset($category_id)) {
+                                                                                                                                                                        echo "&category_id=$category_id";
+                                                                                                                                                                    } ?>"><i class="fa-solid fa-pen-to-square fa-fw"></i></a>
                                                 <a class="btn btn-danger ms-1" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="fa-solid fa-trash fa-fw"></i></a>
                                             </div>
                                         </td>

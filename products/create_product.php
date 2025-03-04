@@ -2,6 +2,7 @@
 session_start();
 
 require_once("../pdo_connect_bark_bijou.php");
+$page = $_GET['page'] ?? 1;
 
 $vendors = $db_host->query("SELECT * FROM vendors")->fetchAll();
 
@@ -19,7 +20,7 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Bark & Bijou</title>
+    <title>新增商品</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -139,7 +140,7 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
                         <h1 class="h3 mb-0 text-gray-800">新增商品</h1>
                     </div>
                     <div class="py-2">
-                        <a class="btn btn-primary" href="products.php"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
+                        <a class="btn btn-primary" href="products.php?page=<?= $page ?>"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
                     </div>
 
                     <form action="process_create_product.php" method="POST" enctype="multipart/form-data">

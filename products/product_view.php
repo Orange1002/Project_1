@@ -4,6 +4,7 @@ require_once("../pdo_connect_bark_bijou.php");
 
 // 取得商品 ID
 $product_id = $_GET["id"] ?? null;
+$page = $_GET['page'] ?? 1;
 
 if (!$product_id) {
     die("❌ 錯誤：缺少商品 ID");
@@ -159,7 +160,7 @@ if (!$product) {
                         <h1 class="h3 mb-0 text-gray-800">商品詳細資訊</h1>
                     </div>
                     <div class="container mt-5">
-                        <a href="products.php" class="btn btn-primary mb-3">
+                        <a href="products.php?page=<?= $page ?>" class="btn btn-primary mb-3">
                             <i class="fa-solid fa-arrow-left"></i> 返回商品列表
                         </a>
 
@@ -213,7 +214,7 @@ if (!$product) {
                             </div>
                         </div>
 
-                        <a href="product_edit.php?id=<?= $product["id"] ?>" class="btn btn-warning">
+                        <a href="product_edit.php?id=<?= $product["id"] ?>&page=<?= $page ?>" class="btn btn-warning">
                             <i class="fa-solid fa-pen"></i> 編輯商品
                         </a>
 

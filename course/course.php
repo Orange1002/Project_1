@@ -381,9 +381,9 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                                                     $registration_date = new DateTime($registration_start);
 
                                                                     // 比較日期
-                                                                    if ($registration_date->format('Y-m-d') == $today->format('Y-m-d')) {
+                                                                    if ($registration_date->format('Y-m-d') <= $today->format('Y-m-d')) {
                                                                         // 如果 registration_start 是今天或之前
-                                                                        echo 1;
+                                                                        echo "已上架";
                                                                     } else {
                                                                         // 如果是其他情況（例如未來某天）
                                                                         echo "未上架";

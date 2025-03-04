@@ -229,23 +229,7 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                 <!-- Begin Page Content -->
                 <div class="mx-4">
                     <!-- Page Heading -->
-                    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-sm">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">系統資訊</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    確認刪除課程?
-                                </div>
-                                <div class="modal-footer">
-                                    <a role="button" type="button" class="btn btn-danger" href="courseDelete.php?id=<?= $row["id"] ?>">確認</a>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
 
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h1 mb-0 text-gray-800 fw-bold">課程列表</h1>
@@ -395,6 +379,23 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                             </div>
                                         </td>
                                     </tr>
+                                    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-sm">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">系統資訊</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    確認刪除課程?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a role="button" type="button" class="btn btn-danger" href="courseDelete.php?id=<?= $course["id"] ?>">確認</a>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
@@ -419,7 +420,7 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                             </nav>
                         </div>
                     <?php endif; ?>
-                    <?php if (!isset($_GET["p"]) && isset($p) ): ?>
+                    <?php if (!isset($_GET["p"]) && isset($p)): ?>
                         <div>
                             <nav aria-label="">
                                 <ul class="pagination">
@@ -427,7 +428,7 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                         <?php
                                         $active = ($i == $p) ? "active" : "";
                                         ?>
-                                        
+
                                         <li class="page-item <?= $active ?>">
                                             <a class="page-link" href="course.php?p=<?= $i ?>&order=<?= $order ?><?php if (isset($_GET["category"])) {
                                                                                                                         echo '&category=' . $category_id;

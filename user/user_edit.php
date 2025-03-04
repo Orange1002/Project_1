@@ -167,9 +167,6 @@ $userCount = $result->num_rows;
                         <div class="py-2 ms-3">
                             <a href="users.php?p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="fs-4 btn btn-secondary"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
                         </div>
-
-
-
                         <div class="row justify-content-center">
                             <?php if ($userCount > 0): ?>
                                 <form action="doUpdateUser.php" method="post" enctype="multipart/form-data">

@@ -96,7 +96,6 @@ if ($q !== "") {
 }
 ?>
 
-
 <!doctype html>
 <html lang="en">
 
@@ -273,26 +272,6 @@ if ($q !== "") {
                 <!-- End of Topbar -->
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <?php foreach ($rows as $row): ?>
-                        <!-- Modal -->
-                        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-sm">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">系統資訊</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        確認刪除使用者?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <a role="button" type="button" class="btn btn-danger" href="doUserDelete.php?id=<?= $row["id"] ?>">確認</a>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
                     <!-- Page Heading -->
                     <div class="d-flex justify-content-between mb-1">
                         <h1 class="h3 mb-0 text-gray-800">會員管理</h1>
@@ -429,6 +408,24 @@ if ($q !== "") {
                                     </thead>
                                     <tbody>
                                         <?php foreach ($rows as $row): ?>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog modal-sm">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="exampleModalLabel">系統資訊</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            確認刪除使用者?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <a role="button" type="button" class="btn btn-danger" href="doDeleteUser.php?id=<?= $row["id"] ?>">確認</a>
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <tr>
                                                 <td class="align-middle text-center"><?= $row["id"] ?></td>
                                                 <td class="align-middle text-center"><?= $row["name"] ?></td>
@@ -448,7 +445,7 @@ if ($q !== "") {
                                     </tbody>
                                 </table>
                                 <div>
-                                    <button class="btn btn-warning">已刪除會員</button>
+                                    <a href="user_deleted.php?p=1&oeder=1" class="btn btn-warning">已刪除會員</a>
                                 </div>
                                 <?php
                                 // 取得當前的頁碼
@@ -513,7 +510,7 @@ if ($q !== "") {
                                                             <input type="hidden" name="gender_id" value="<?= $gender_id ?>">
                                                         <?php endif; ?>
                                                         <input type="number" name="p" class="form-control rounded-0 p-0 text-warning fw-bold fs-5" min="1" max="<?= $totalPage ?>" value="<?= $p ?>" style="width: 70px; text-align: center;">
-                                                        <button type="submit" class="btn bg-light text-warning btn-sm rounded-0 fw-bold fs-5">Go</button>
+                                                        <button type="submit" class="btn bg-light text-warning btn-sm rounded-0 fw-bold fs-5 ms-2">Go</button>
                                                     </form>
                                                 </li>
                                             </ul>

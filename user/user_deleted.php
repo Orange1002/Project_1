@@ -1,21 +1,99 @@
 <?php
+session_start();
+if (!isset($_SESSION["user"])) {
+    header("location: sign_in.php");
+    exit;
+}
+require_once("../db_connect_bark_bijou.php");
 
-require_once("../pdo_connect_bark_bijou.php");
+// 預設初始化變數
+$gender_id = isset($_GET['gender_id']) ? $_GET['gender_id'] : "";
+$q = isset($_GET['q']) ? $_GET['q'] : "";
+$order = isset($_GET['order']) ? $_GET['order'] : 1;
 
-try {
-    $stmt = $db_host->prepare("SELECT products.*, 
-       COALESCE((SELECT img_url 
-                 FROM product_images 
-                 WHERE product_images.product_id = products.id 
-                 LIMIT 1), 'uploads/default.png') AS img_url
-FROM products
-WHERE products.valid = 0");
-    $stmt->execute();
-    $products = $stmt->fetchAll();
-} catch (PDOException $e) {
-    echo json_encode(["error" => $e->getMessage()]);
+// 先查詢所有使用者的數量
+$sqlAll = "SELECT users.*, COALESCE(gender.name, '不願透露') AS gender_name 
+           FROM users
+           LEFT JOIN gender ON users.gender_id = gender.id
+           WHERE users.valid = 0";
+$resultAll = $conn->query($sqlAll);
+$userCount = $resultAll->num_rows;
+
+// 根據搜尋、性別篩選、排序和分頁處理查詢
+$whereClause = "WHERE users.valid = 0";  // 基本篩選條件
+
+// 檢查是否有性別篩選條件
+if ($gender_id !== "") {
+    if ($gender_id === "null") {
+        $whereClause .= " AND users.gender_id IS NULL";
+    } else {
+        $whereClause .= " AND users.gender_id = " . (int)$gender_id;
+    }
 }
 
+// 檢查是否有搜尋關鍵字
+if ($q !== "") {
+    $whereClause .= " AND users.name LIKE '%$q%'";
+}
+
+$orderClause = "";
+// 檢查是否有排序條件
+switch ($order) {
+    case 1:
+        $orderClause = "ORDER BY users.id ASC";
+        break;
+    case 2:
+        $orderClause = "ORDER BY users.id DESC";
+        break;
+    case 3:
+        $orderClause = "ORDER BY users.name DESC";
+        break;
+    case 4:
+        $orderClause = "ORDER BY users.name ASC";
+        break;
+    case 5:
+        $orderClause = "ORDER BY users.created_at DESC";
+        break;
+    case 6:
+        $orderClause = "ORDER BY users.created_at ASC";
+        break;
+}
+
+// 分頁處理
+$perPage = 10;
+$p = isset($_GET["p"]) ? $_GET["p"] : 1;
+$startItem = ($p - 1) * $perPage;
+
+// 根據條件構建最終的查詢，並獲取篩選後的用戶數量
+$sqlFilteredCount = "SELECT COUNT(*) AS totalCount 
+                     FROM users 
+                     LEFT JOIN gender ON users.gender_id = gender.id 
+                     $whereClause";
+$resultFilteredCount = $conn->query($sqlFilteredCount);
+$row = $resultFilteredCount->fetch_assoc();
+$filteredUserCount = $row['totalCount'];
+
+// 計算篩選後的總頁數
+$totalPage = ceil($filteredUserCount / $perPage);
+
+// 根據條件構建最終的查詢
+$sql = "SELECT users.*, COALESCE(gender.name, '不願透露') AS gender_name 
+        FROM users 
+        LEFT JOIN gender ON users.gender_id = gender.id 
+        $whereClause $orderClause 
+        LIMIT $startItem, $perPage";
+
+$result = $conn->query($sql);
+$rows = $result->fetch_all(MYSQLI_ASSOC);
+
+// 生成查詢字串 (保持搜尋、性別篩選和排序條件)
+$queryString = "order=" . urlencode($order); // 保留排序
+if ($gender_id !== "") {
+    $queryString .= "&gender_id=" . urlencode($gender_id); // 保留性別篩選
+}
+if ($q !== "") {
+    $queryString .= "&q=" . urlencode($q); // 保留搜尋條件
+}
 ?>
 
 <!DOCTYPE html>
@@ -31,31 +109,84 @@ WHERE products.valid = 0");
 
     <title>已刪除會員</title>
 
-    <!-- Custom fonts for this template-->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-
-    <!-- Custom styles for this template-->
-    <link href="./sb-admin-2.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="./style.css" rel="stylesheet">
-    <link href="./courseStyle.css" rel="stylesheet">
-
     <?php include("../css.php") ?>
+    <style>
+        .list-btn a {
+            color: #ffc107;
+            background-color: transparent;
+        }
+
+        .list-btn a:hover {
+            color: #b8860b;
+            background-color: transparent;
+        }
+
+        .list-btn a:focus {
+            color: rgb(255, 184, 113);
+            background-color: transparent;
+        }
+
+        .list-btn a:active {
+            color: #b8860b;
+            background-color: transparent;
+        }
+
+        .list-btn a.active {
+            color: #b8860b;
+            background-color: transparent;
+        }
+
+        .list-btn .btn {
+            border: none;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .pagination .page-link {
+            background-color: #ffc107;
+            color: white;
+            border-color: #f8f9fa;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #ffca2c;
+            border-color: #ffc720;
+        }
+
+        .pagination .page-link:focus {
+            box-shadow: rgb(217, 164, 6);
+        }
+
+        .pagination .active .page-link {
+            background-color: rgb(219, 161, 16);
+            border-color: rgb(219, 161, 16);
+        }
+
+        .nav-pills .nav-link {
+            color: #333;
+            background-color: #ffc107;
+        }
+
+        .nav-pills .nav-link.active {
+            color: white;
+            background-color: rgb(222, 167, 0);
+            font-weight: bold;
+        }
+
+        .nav-pills .nav-link:hover {
+            color: #fff;
+            background-color: rgb(255, 215, 95);
+        }
+    </style>
 </head>
 
 <body id="page-top">
-
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
-        <ul class="navbar-nav sidebar sidebar-dark accordion primary" id="accordionSidebar">
+        <ul class="navbar-nav sidebar sidebar-dark accordion bg-warning" id="accordionSidebar">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="users.php">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
@@ -65,32 +196,32 @@ WHERE products.valid = 0");
             <hr class="sidebar-divider my-0">
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="users.php">
                     <i class="fa-solid fa-user"></i>
                     <span>會員專區</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="products.php">
+                <a class="nav-link" href="../products/products.php">
                     <i class="fa-solid fa-user"></i>
                     <span>商品列表</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../course/course.php">
                     <i class="fa-solid fa-user"></i>
                     <span>課程管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../pet-hotel/hotel-list.php">
                     <i class="fa-solid fa-user"></i>
                     <span>旅館管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../article/article-list.php">
                     <i class="fa-solid fa-user"></i>
                     <span>文章管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../coupon/coupon.php">
                     <i class="fa-solid fa-user"></i>
                     <span>優惠券管理</span></a>
             </li>
@@ -125,7 +256,7 @@ WHERE products.valid = 0");
                                             placeholder="Search for..." aria-label="Search"
                                             aria-describedby="basic-addon2">
                                         <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
+                                            <button class="btn btn-warning" type="button">
                                                 <i class="fas fa-search fa-sm"></i>
                                             </button>
                                         </div>
@@ -133,98 +264,275 @@ WHERE products.valid = 0");
                                 </form>
                             </div>
                         </li>
-                        <!-- Nav Item - Alerts -->
-                        <!-- Nav Item - Messages -->
-                        <div class="topbar-divider d-none d-sm-block"></div>
                         <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
-                                </a>
-                            </div>
+                        <span class="fs-5 me-3">Hi, <?= $_SESSION["user"]["account"] ?></span>
+                        <a href="doLogout.php" class="btn btn-danger">登出</a>
+                        <!-- Dropdown - User Information -->
                         </li>
                     </ul>
                 </nav>
                 <!-- End of Topbar -->
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">商品列表</h1>
-                    </div>
-                    <div class="py-2">
-            <a class="btn btn-primary" href="products.php"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
-        </div>
-
-        <h2 class="mt-3">回收站（已刪除商品）</h2>
-
-        <?php if (count($products) > 0): ?>
-            <table class="table table-bordered table-striped mt-3 text-center align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>圖片</th>
-                        <th>商品名稱</th>
-                        <th>價格 (TWD)</th>
-                        <th>庫存</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($products as $product): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($product["id"]) ?></td>
-                            <td>
-                                <img src="<?= htmlspecialchars($product['img_url']) ?>" 
-                                     alt="商品圖片" class="img-thumbnail" style="width: 50px; height: 50px;">
-                            </td>
-                            <td><?= htmlspecialchars($product["product_name"]) ?></td>
-                            <td><?= number_format($product["price"]) ?> TWD</td>
-                            <td><?= $product["stock"] ?></td>
-                            <td>
-                                <a href="product_recover.php?id=<?= $product["id"] ?>" class="btn btn-success btn-sm">
-                                    <i class="fa-solid fa-undo fa-fw"></i> 還原
-                                </a>
-                            </td>
-                        </tr>
+                    <?php foreach ($rows as $row): ?>
+                        <!-- Modal -->
+                        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">系統資訊</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        確認刪除使用者?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a role="button" type="button" class="btn btn-danger" href="doUserDelete.php?id=<?= $row["id"] ?>">確認</a>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <div class="alert alert-warning">回收站內沒有商品。</div>
-        <?php endif; ?>
+                    <!-- Page Heading -->
+                    <div class="d-flex justify-content-between mb-1">
+                        <h1 class="h3 mb-0 text-gray-800">會員管理</h1>
+                    </div>
+                    <div class="d-sm-flex align-items-center justify-content-between">
+                        <div class="container-fluid">
+                            <div class="py-2 row align-items-center mb-3">
+                                <div class="col-md-6 d-flex">
+                                    <div class="py-2 me-3">
+                                        <a href="users.php?p=1&order=1" class="fs-4 btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
+                                    </div>
+                                    <div class="hstack gap-2 align-item-center">
+                                        <div>共 <?= $filteredUserCount ?> 位使用者</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row g-0">
+                                        <div class="col-5 d-flex justify-content-end">
+                                            <ul class="nav nav-pills gap-2">
+                                                <!-- 全部（不帶 gender_id） -->
+                                                <li class="nav-item">
+                                                    <a class="nav-link py-1 px-2 <?= (!isset($_GET["gender_id"])) ? "active" : "" ?>"
+                                                        href="user_deleted.php?p=1&order=<?= $order ?><?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">
+                                                        全部
+                                                    </a>
+                                                </li>
+                                                <!-- 男性 -->
+                                                <li class="nav-item">
+                                                    <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "1") ? "active" : "" ?>"
+                                                        href="user_deleted.php?p=1&order=<?= $order ?>&gender_id=1<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">男性</a>
+                                                </li>
+                                                <!-- 女性 -->
+                                                <li class="nav-item">
+                                                    <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "2") ? "active" : "" ?>"
+                                                        href="user_deleted.php?p=1&order=<?= $order ?>&gender_id=2<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">女性</a>
+                                                </li>
+                                                <!-- 不願透漏 -->
+                                                <li class="nav-item">
+                                                    <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "3") ? "active" : "" ?>"
+                                                        href="user_deleted.php?p=1&order=<?= $order ?>&gender_id=3<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">不願透漏</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-7 d-flex justify-content-between">
+                                            <form action="user_deleted.php" method="get">
+                                                <div class="input-group me-3">
+                                                    <!-- 頁碼設置為 1 -->
+                                                    <input type="hidden" name="p" value="1">
+                                                    <!-- 保留排序條件 -->
+                                                    <input type="hidden" name="order" value="<?= isset($order) ? $order : 1 ?>">
+                                                    <!-- 保留性別篩選條件 -->
+                                                    <?php if (isset($gender_id) && $gender_id !== ""): ?>
+                                                        <input type="hidden" name="gender_id" value="<?= $gender_id ?>">
+                                                    <?php endif; ?>
+                                                    <!-- 搜尋欄位 -->
+                                                    <input type="search" placeholder="搜尋會員" class="form-control" name="q" value="<?= isset($q) ? $q : '' ?>">
+                                                    <!-- 搜尋按鈕 -->
+                                                    <button class="btn btn-warning" type="submit">
+                                                        <i class="fa-solid fa-magnifying-glass fa-fw"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                            <?php if (isset($_GET["q"])) : ?>
+                                                <a class="btn btn-secondary me-5" href="user_deleted.php?p=1&order=1">清空</a>
+                                            <?php endif; ?>
+                                            <div>
+                                                <a href="user_create.php?id=<?= htmlspecialchars($row['id'] ?? '') ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-warning"><i class="fa-solid fa-user-plus fa-fw"></i></a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <?php if ($userCount > 0): ?>
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="align-middle">
+                                                <div class="row g-0">
+                                                    <div class="d-flex align-items-center justify-content-end col-8 p-0">
+                                                        id
+                                                    </div>
+                                                    <?php
+                                                    $next_order = ($order == 1) ? 2 : 1; // 切換排序
+                                                    $icon = ($order == 1) ? "fa-caret-down" : "fa-caret-up"; // 切換圖標
+                                                    ?>
+                                                    <div class="col-4 list-btn">
+                                                        <a href="user_deleted.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                            class="d-flex btn p-0 <?= ($order == 1 || $order == 2) ? "active" : "" ?>">
+                                                            <i class="fa-solid <?= $icon ?>"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <th class="align-middle">
+                                                <div class="row g-0">
+                                                    <div class="d-flex align-items-center justify-content-end col-8 p-0">
+                                                        使用者名稱
+                                                    </div>
+                                                    <?php
+                                                    // 確定當前排序狀態，並計算下一次點擊的排序值
+                                                    $next_order = ($order == 4) ? 3 : 4; // 4=升冪，3=降冪
+                                                    $icon = ($order == 4) ? "fa-caret-down" : "fa-caret-up"; // 圖標變更
+                                                    ?>
+                                                    <div class="col-4 list-btn">
+                                                        <a href="user_deleted.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                            class="d-flex btn p-0 <?= ($order == 3 || $order == 4) ? "active" : "" ?>">
+                                                            <i class="fa-solid <?= $icon ?>"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <th class="align-middle text-center">性別</th>
+                                            <th class="align-middle text-center">手機號碼</th>
+                                            <th class="align-middle text-center">電子信箱</th>
+                                            <th class="align-middle text-center">
+                                                <div class="row g-0">
+                                                    <div class="d-flex align-items-center justify-content-end col-8 p-0">
+                                                        加入時間
+                                                    </div>
+                                                    <?php
+                                                    // 計算下一個排序狀態
+                                                    $next_order = ($order == 6) ? 5 : 6; // 6=升冪，5=降冪
+                                                    $icon = ($order == 6) ? "fa-caret-down" : "fa-caret-up"; // 根據當前狀態變更圖示
+                                                    ?>
+                                                    <div class="col-4 list-btn">
+                                                        <a href="user_deleted.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                            class="d-flex btn p-0 <?= ($order == 5 || $order == 6) ? "active" : "" ?>">
+                                                            <i class="fa-solid <?= $icon ?>"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($rows as $row): ?>
+                                            <tr>
+                                                <td class="align-middle text-center"><?= $row["id"] ?></td>
+                                                <td class="align-middle text-center"><?= $row["name"] ?></td>
+                                                <td class="align-middle text-center"><?= $row["gender_name"] ?></td>
+                                                <td class="align-middle text-center"><?= $row["phone"] ?></td>
+                                                <td class="align-middle text-center"><?= $row["email"] ?></td>
+                                                <td class="align-middle text-center"><?= $row["created_at"] ?></td>
+                                                <td class="align-middle text-center p-0">
+                                                    <a href="user_edit.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-success btn-sm"><i class="fa-solid fa-fw fa-pen"></i></a>
+
+                                                    <a href="user_view.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-primary btn-sm"><i class="fa-regular fa-eye"></i></a>
+
+                                                    <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="fa-solid fa-trash fa-fw"></i></a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                                <?php
+                                // 取得當前的頁碼
+                                $p = isset($_GET["p"]) ? $_GET["p"] : 1;
+                                // 取得排序方式
+                                $order = isset($_GET["order"]) ? $_GET["order"] : 1;
+                                // 取得篩選的 gender_id
+                                $gender_id = isset($_GET["gender_id"]) ? $_GET["gender_id"] : "";
+                                // 組合 URL 查詢字串
+                                $queryString = "order={$order}";
+                                if ($gender_id !== "") {
+                                    $queryString .= "&gender_id={$gender_id}";
+                                }
+                                ?>
+                                <?php if (isset($_GET["p"])): ?>
+                                    <div class="d-flex justify-content-center">
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination">
+                                                <!-- 第一頁 -->
+                                                <?php if ($p > 1): ?>
+                                                    <li class="page-item">
+                                                        <a class="page-link fs-5" href="user_deleted.php?p=1&<?= $queryString ?>">&lt;&lt;</a>
+                                                    </li>
+                                                <?php endif; ?>
+
+                                                <!-- 上一頁 -->
+                                                <?php if ($p > 1): ?>
+                                                    <li class="page-item">
+                                                        <a class="page-link fs-5" href="user_deleted.php?p=<?= max(1, $p - 1) ?>&<?= $queryString ?>" aria-label="Previous">&lt;</a>
+                                                    </li>
+                                                <?php endif; ?>
+
+                                                <!-- 動態頁碼顯示 -->
+                                                <?php
+                                                $start = max(1, $p - 2);
+                                                $end = min($totalPage, $p + 2);
+                                                for ($i = $start; $i <= $end; $i++): ?>
+                                                    <li class="page-item <?= ($i == $p) ? "active" : "" ?>">
+                                                        <a class="page-link fs-5" href="user_deleted.php?p=<?= $i ?>&<?= $queryString ?>"><?= $i ?></a>
+                                                    </li>
+                                                <?php endfor; ?>
+
+                                                <!-- 下一頁 -->
+                                                <?php if ($p < $totalPage): ?>
+                                                    <li class="page-item">
+                                                        <a class="page-link fs-5" href="user_deleted.php?p=<?= min($totalPage, $p + 1) ?>&<?= $queryString ?>" aria-label="Next">&gt;</a>
+                                                    </li>
+                                                <?php endif; ?>
+
+                                                <!-- 最後一頁 -->
+                                                <?php if ($p < $totalPage): ?>
+                                                    <li class="page-item">
+                                                        <a class="page-link fs-5" href="user_deleted.php?p=<?= $totalPage ?>&<?= $queryString ?>">&gt;&gt;</a>
+                                                    </li>
+                                                <?php endif; ?>
+
+                                                <!-- 搜尋框 -->
+                                                <li class="page-item ms-3">
+                                                    <form action="user_deleted.php" method="GET" class="d-flex">
+                                                        <input type="hidden" name="order" value="<?= $order ?>">
+                                                        <?php if ($gender_id !== ""): ?>
+                                                            <input type="hidden" name="gender_id" value="<?= $gender_id ?>">
+                                                        <?php endif; ?>
+                                                        <input type="number" name="p" class="form-control rounded-0 p-0 text-warning fw-bold fs-5" min="1" max="<?= $totalPage ?>" value="<?= $p ?>" style="width: 70px; text-align: center;">
+                                                        <button type="submit" class="btn bg-light text-warning btn-sm rounded-0 fw-bold fs-5 ms-2">Go</button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <!-- End of Page Wrapper -->
                 </div>
-                <!-- End of Page Wrapper -->
+                <!-- Scroll to Top Button-->
             </div>
-            <!-- Scroll to Top Button-->
         </div>
     </div>
-    </div>
+    <?php include("../js.php") ?>
+    <script>
 
-
-
+    </script>
 </body>
 
 </html>

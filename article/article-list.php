@@ -8,6 +8,7 @@
     $perpage = 4; // 每頁顯示的文章數量
     $startItem = ($p - 1) * $perpage;
 
+
     // 預設分類過濾條件為空
     $category_filter = "";
     if (isset($_GET["category_id"])) {
@@ -276,7 +277,7 @@
                              </tbody>
                          </table>
                          <?php if (isset($_GET["p"])): ?>
-                             <div>
+                             <div class="d-flex justify-content-between">
                                  <nav aria-label="Page navigation example">
                                      <ul class="pagination">
                                          <?php for ($i = 1; $i <= $totalPage; $i++): ?>
@@ -292,8 +293,12 @@
                                          <?php endfor; ?>
                                      </ul>
                                  </nav>
+                                 <div>
+                                     <a class="btn btn-danger" href="article-recover.php?id=1">查看已被刪除文章</a>
+                                 </div>
                              </div>
                          <?php endif; ?>
+
                      </div>
                      <!-- End of Page Wrapper -->
                  </div>

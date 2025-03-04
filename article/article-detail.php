@@ -6,7 +6,7 @@ if (!isset($_GET["id"])) {
 }
 $id = $_GET["id"];
 require_once("../db_connect_bark_bijou.php");
-$sql = "SELECT * FROM article WHERE id =$id AND valid=1";
+$sql = "SELECT * FROM article WHERE id =$id";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $articleCount = $result->num_rows;

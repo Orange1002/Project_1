@@ -22,7 +22,7 @@ if ($conn->query($sql) === TRUE) {
 if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
     $ext = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
     $newName = time() . "." . $ext;
-    if (move_uploaded_file($_FILES["image"]["tmp_name"], "../img/" . $newName)) {
+    if (move_uploaded_file($_FILES["image"]["tmp_name"], "../acticleImg/" . $newName)) {
         // **插入圖片資訊到 article_img**
         $sql_img = "INSERT INTO article_img (article_id, image) VALUES ('$id', '$newName')";
         if ($conn->query($sql_img) !== TRUE) {

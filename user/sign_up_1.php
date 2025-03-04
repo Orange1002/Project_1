@@ -29,9 +29,9 @@ session_start();
                         <div class="mb-2">
                             <label for="gender" class="form-label">性別</label>
                             <select name="gender_id" class="form-control" required>
-                                <option value="" selected>未填寫</option>
-                                <option value="1">男</option>
+                                <option value="1" selected>男</option>
                                 <option value="2">女</option>
+                                <option value="3">不願透漏</option>
                             </select>
                         </div>
                         <div class="mb-2">
@@ -48,7 +48,7 @@ session_start();
                             <label for="repassword" class="form-label">確認密碼</label>
                             <input type="password" class="form-control" name="repassword" id="repassword" required>
                         </div>
-                        <button class="btn btn-primary" type="submit">下一步</button>
+                        <button class="btn btn-warning" type="submit">下一步</button>
                     </form>
                 </div>
             </div>

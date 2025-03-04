@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 require_once("../db_connect_bark_bijou.php");
 
@@ -12,14 +13,23 @@ if (isset($_GET["q"]) && isset($_GET["category"])) {
     $q = $_GET["q"];
     $category_id = $_GET["category"];
     $WhereClause = "AND name LIKE'%$q%' AND course.method_id= $category_id";
+    $sqlNew = "SELECT * FROM course WHERE valid=1 $WhereClause";
+    $resultNew = $conn->query($sqlNew);
+    $courseCount = $resultNew->num_rows;
 } else if (isset($_GET["category"])) {
     $category_id = $_GET["category"];
     $WhereClause = "AND course.method_id= $category_id";
+    $sqlNew = "SELECT * FROM course WHERE valid=1 $WhereClause";
+    $resultNew = $conn->query($sqlNew);
+    $courseCount = $resultNew->num_rows;
 } else if (isset($_GET["q"]) && $_GET["q"] !== "") {
     $q = $_GET["q"];
     $WhereClause = "AND name LIKE'%$q%'";
     $p = 1;
     $order = 2;
+    $sqlNew = "SELECT * FROM course WHERE valid=1 $WhereClause";
+    $resultNew = $conn->query($sqlNew);
+    $courseCount = $resultNew->num_rows;
 } else if (isset($_GET["q"]) && $_GET["q"] === "") {
     header("location: course.php?p=1&order=2");
 } else {
@@ -54,7 +64,6 @@ $perPage = 5;
 $startItem = ($p - 1) * $perPage;
 $totalPage = ceil($courseCount / $perPage);
 
-
 if (!isset($_GET["q"]) && !isset($_GET["category"]) && !isset($_GET["p"]) && !isset($_GET["order"])) {
     header("location: course.php?p=1&order=2");
 }
@@ -66,6 +75,7 @@ WHERE course.valid = 1 $WhereClause $orderClause LIMIT $startItem,$perPage
 ";
 $resultImg = $conn->query($sqlImg);
 $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
+
 
 ?>
 
@@ -102,7 +112,9 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
         }
 
         .imgsize {
+            width: 100%;
             height: 100px;
+            object-fit: cover;
         }
 
         .btn-orange:link,
@@ -127,7 +139,7 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
         <!-- Sidebar -->
         <ul class="navbar-nav sidebar sidebar-dark accordion primary" id="accordionSidebar">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="../user/users.php">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
@@ -137,32 +149,32 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
             <hr class="sidebar-divider my-0">
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="../user/users.php">
                     <i class="fa-solid fa-user"></i>
                     <span>會員專區</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="../products/products.php">
                     <i class="fa-solid fa-user"></i>
                     <span>商品列表</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="course.php?p=1&order=2">
+                <a class="nav-link" href="course.php">
                     <i class="fa-solid fa-user"></i>
                     <span>課程管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="../pet-hotel/hotel-list.php">
                     <i class="fa-solid fa-user"></i>
                     <span>旅館管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="../article/article-list.php">
                     <i class="fa-solid fa-user"></i>
                     <span>文章管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="../coupon/coupon.php">
                     <i class="fa-solid fa-user"></i>
                     <span>優惠券管理</span></a>
             </li>
@@ -197,7 +209,7 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                             placeholder="Search for..." aria-label="Search"
                                             aria-describedby="basic-addon2">
                                         <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
+                                            <button class="btn btn-warning" type="button">
                                                 <i class="fas fa-search fa-sm"></i>
                                             </button>
                                         </div>
@@ -205,50 +217,29 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                 </form>
                             </div>
                         </li>
-                        <!-- Nav Item - Alerts -->
-                        <!-- Nav Item - Messages -->
-                        <div class="topbar-divider d-none d-sm-block"></div>
                         <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
-                                </a>
-                            </div>
+                        <span class="fs-5 me-3">Hi, <?= $_SESSION["user"]["account"] ?></span>
+                        <a href="../user/doLogout.php" class="btn btn-danger">登出</a>
+                        <!-- Dropdown - User Information -->
                         </li>
                     </ul>
                 </nav>
                 <!-- End of Topbar -->
+                <!-- End of Topbar -->
                 <!-- Begin Page Content -->
                 <div class="mx-4">
                     <!-- Page Heading -->
+
+
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h1 mb-0 text-gray-800 fw-bold">課程列表</h1>
                         <a class="btn btn-orange" href="add_course.php">新增課程</a>
                     </div>
                     <div></div>
                     <div class="d-sm-flex align-items-center mb-4">
+                        <?php if (isset($_GET["q"])): ?>
+                            <a class="btn btn-orange me-2" href="course.php"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
+                        <?php endif; ?>
                         總共<?= $courseCount ?>筆
                         <form action="" class="ms-3">
                             <div class="input-group">
@@ -382,25 +373,68 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                         <td class="align-middle">在架上</td>
                                         <td class="align-middle">
                                             <div class="d-flex justify-content-center align-items-center">
-                                                <a class="btn btn-primary" href="course_content.php?id=<?= $course["id"] ?>"><i class="fa-solid fa-eye"></i></i></a>
-                                                <a class="btn btn-primary ms-2" href="course_edit.php?id=<?= $course["id"] ?>"><i class="fa-solid fa-pen-to-square fa-fw"></i></a>
+                                                <a class="btn btn-success" href="course_content.php?id=<?= $course["id"] ?>"><i class="fa-solid fa-eye"></i></i></a>
+                                                <a class="btn btn-primary ms-1" href="course_edit.php?id=<?= $course["id"] ?>"><i class="fa-solid fa-pen-to-square fa-fw"></i></a>
+                                                <a class="btn btn-danger ms-1" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="fa-solid fa-trash fa-fw"></i></a>
                                             </div>
                                         </td>
                                     </tr>
+                                    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-sm">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">系統資訊</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    確認刪除課程?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a role="button" type="button" class="btn btn-danger" href="courseDelete.php?id=<?= $course["id"] ?>">確認</a>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
-                    <?php if (isset($_GET["p"]) || isset($p)): ?>
+                    <?php if (isset($_GET["p"])): ?>
                         <div>
                             <nav aria-label="">
                                 <ul class="pagination">
                                     <?php for ($i = 1; $i <= $totalPage; $i++): ?>
                                         <?php
-                                        $active = ($i == $_GET["p"] || $i == $p) ? "active" : "";
+                                        $active = ($i == $_GET["p"]) ? "active" : "";
                                         ?>
                                         <li class="page-item <?= $active ?>">
-                                            <a class="page-link" href="course.php?p=<?= $i ?>&order=<?= $order ?>"><?= $i ?></a>
+                                            <a class="page-link" href="course.php?p=<?= $i ?>&order=<?= $order ?><?php if (isset($_GET["category"])) {
+                                                                                                                        echo '&category=' . $category_id;
+                                                                                                                    } ?><?php if (isset($_GET["q"])) {
+                                                                                                                            echo '&q=' . $q;
+                                                                                                                        } ?>"><?= $i ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                </ul>
+                            </nav>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!isset($_GET["p"]) && isset($p)): ?>
+                        <div>
+                            <nav aria-label="">
+                                <ul class="pagination">
+                                    <?php for ($i = 1; $i <= $totalPage; $i++): ?>
+                                        <?php
+                                        $active = ($i == $p) ? "active" : "";
+                                        ?>
+
+                                        <li class="page-item <?= $active ?>">
+                                            <a class="page-link" href="course.php?p=<?= $i ?>&order=<?= $order ?><?php if (isset($_GET["category"])) {
+                                                                                                                        echo '&category=' . $category_id;
+                                                                                                                    } ?><?php if (isset($_GET["q"])) {
+                                                                                                                            echo '&q=' . $q;
+                                                                                                                        } ?>"><?= $i ?></a>
                                         </li>
                                     <?php endfor; ?>
                                 </ul>

@@ -43,7 +43,7 @@ $userCount = $result->num_rows;
         <!-- Sidebar -->
         <ul class="navbar-nav sidebar sidebar-dark accordion bg-warning" id="accordionSidebar">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="users.php">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
@@ -53,32 +53,32 @@ $userCount = $result->num_rows;
             <hr class="sidebar-divider my-0">
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="users.php">
                     <i class="fa-solid fa-user"></i>
                     <span>會員專區</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../products/products.php">
                     <i class="fa-solid fa-user"></i>
                     <span>商品列表</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../coupon/coupon.php">
                     <i class="fa-solid fa-user"></i>
                     <span>課程管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../pet-hotel/hotel-list.php">
                     <i class="fa-solid fa-user"></i>
                     <span>旅館管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../article/article-list.php">
                     <i class="fa-solid fa-user"></i>
                     <span>文章管理</span></a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="../coupon/coupon.php">
                     <i class="fa-solid fa-user"></i>
                     <span>優惠券管理</span></a>
             </li>

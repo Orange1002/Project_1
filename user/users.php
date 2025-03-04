@@ -5,8 +5,14 @@ if (!isset($_SESSION["user"])) {
     exit;
 }
 require_once("../db_connect_bark_bijou.php");
+
+// 預設初始化變數
+$gender_id = isset($_GET['gender_id']) ? $_GET['gender_id'] : "";
+$q = isset($_GET['q']) ? $_GET['q'] : "";
+$order = isset($_GET['order']) ? $_GET['order'] : 1;
+
 // 先查詢所有使用者的數量
-$sqlAll = "SELECT users.*, COALESCE(gender.name, '未填寫') AS gender_name 
+$sqlAll = "SELECT users.*, COALESCE(gender.name, '不願透露') AS gender_name 
            FROM users
            LEFT JOIN gender ON users.gender_id = gender.id
            WHERE users.valid = 1";
@@ -17,8 +23,7 @@ $userCount = $resultAll->num_rows;
 $whereClause = "WHERE users.valid = 1";  // 基本篩選條件
 
 // 檢查是否有性別篩選條件
-if (isset($_GET["gender_id"])) {
-    $gender_id = $_GET["gender_id"];
+if ($gender_id !== "") {
     if ($gender_id === "null") {
         $whereClause .= " AND users.gender_id IS NULL";
     } else {
@@ -27,45 +32,52 @@ if (isset($_GET["gender_id"])) {
 }
 
 // 檢查是否有搜尋關鍵字
-if (isset($_GET["q"])) {
-    $q = $_GET["q"];
+if ($q !== "") {
     $whereClause .= " AND users.name LIKE '%$q%'";
 }
 
 $orderClause = "";
 // 檢查是否有排序條件
-if (isset($_GET["order"])) {
-    $order = $_GET["order"];
-    switch ($order) {
-        case 1:
-            $orderClause = "ORDER BY users.id DESC";
-            break;
-        case 2:
-            $orderClause = "ORDER BY users.id ASC";
-            break;
-        case 3:
-            $orderClause = "ORDER BY users.name ASC";
-            break;
-        case 4:
-            $orderClause = "ORDER BY users.name DESC";
-            break;
-        case 5:
-            $orderClause = "ORDER BY users.created_at DESC";
-            break;
-        case 6:
-            $orderClause = "ORDER BY users.created_at ASC";
-            break;
-    }
+switch ($order) {
+    case 1:
+        $orderClause = "ORDER BY users.id ASC";
+        break;
+    case 2:
+        $orderClause = "ORDER BY users.id DESC";
+        break;
+    case 3:
+        $orderClause = "ORDER BY users.name DESC";
+        break;
+    case 4:
+        $orderClause = "ORDER BY users.name ASC";
+        break;
+    case 5:
+        $orderClause = "ORDER BY users.created_at DESC";
+        break;
+    case 6:
+        $orderClause = "ORDER BY users.created_at ASC";
+        break;
 }
 
 // 分頁處理
 $perPage = 10;
 $p = isset($_GET["p"]) ? $_GET["p"] : 1;
 $startItem = ($p - 1) * $perPage;
-$totalPage = ceil($userCount / $perPage);
+
+// 根據條件構建最終的查詢，並獲取篩選後的用戶數量
+$sqlFilteredCount = "SELECT COUNT(*) AS totalCount 
+                     FROM users 
+                     LEFT JOIN gender ON users.gender_id = gender.id 
+                     $whereClause";
+$resultFilteredCount = $conn->query($sqlFilteredCount);
+$row = $resultFilteredCount->fetch_assoc();
+$filteredUserCount = $row['totalCount'];
+
+// 計算篩選後的總頁數
+$totalPage = ceil($filteredUserCount / $perPage);
 
 // 根據條件構建最終的查詢
-$sql = "SELECT users.*, COALESCE(gender.name, '未填寫') AS gender_name 
+$sql = "SELECT users.*, COALESCE(gender.name, '不願透露') AS gender_name 
         FROM users 
         LEFT JOIN gender ON users.gender_id = gender.id 
         $whereClause $orderClause 
@@ -74,12 +86,17 @@ $sql = "SELECT users.*, COALESCE(gender.name, '未填寫') AS gender_name
 $result = $conn->query($sql);
 $rows = $result->fetch_all(MYSQLI_ASSOC);
 
-// 更新總用戶數量，如果有搜尋條件
-if (isset($_GET["q"])) {
-    $userCount = $result->num_rows;
+// 生成查詢字串 (保持搜尋、性別篩選和排序條件)
+$queryString = "order=" . urlencode($order); // 保留排序
+if ($gender_id !== "") {
+    $queryString .= "&gender_id=" . urlencode($gender_id); // 保留性別篩選
 }
-
+if ($q !== "") {
+    $queryString .= "&q=" . urlencode($q); // 保留搜尋條件
+}
 ?>
+
+
 <!doctype html>
 <html lang="en">
 
@@ -282,59 +299,73 @@ if (isset($_GET["q"])) {
                     </div>
                     <div class="d-sm-flex align-items-center justify-content-between">
                         <div class="container-fluid">
-                            <div class="py-2 row g-3 align-items-center mb-3">
-                                <div class="col-md-4">
+                            <div class="py-2 row align-items-center mb-3">
+                                <div class="col-md-6">
                                     <div class="hstack gap-2 align-item-center">
-                                        <?php if (isset($_GET["q"])) : ?>
-                                            <a class="btn btn-warning" href="users.php?p=1&order=1"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
-                                        <?php endif; ?>
-                                        <div>共 <?= $userCount ?> 位使用者</div>
+
+                                        <div>共 <?= $filteredUserCount ?> 位使用者</div>
                                     </div>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-6">
                                     <div class="row g-0">
-                                        <div class="col-6 d-flex justify-content-end">
+                                        <div class="col-5 d-flex justify-content-end">
                                             <ul class="nav nav-pills gap-2">
-                                                <!-- 全部 -->
+                                                <!-- 全部（不帶 gender_id） -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (!isset($_GET["gender_id"])) ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?>">全部</a>
+                                                        href="users.php?p=1&order=<?= $order ?><?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">
+                                                        全部
+                                                    </a>
                                                 </li>
                                                 <!-- 男性 -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "1") ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?>&gender_id=1">男性</a>
+                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=1<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">男性</a>
                                                 </li>
                                                 <!-- 女性 -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "2") ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?>&gender_id=2">女性</a>
+                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=2<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">女性</a>
                                                 </li>
-                                                <!-- 未填寫 -->
+                                                <!-- 不願透漏 -->
                                                 <li class="nav-item">
-                                                    <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] === "") ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?>&gender_id=">未填寫</a>
+                                                    <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "3") ? "active" : "" ?>"
+                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=3<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">不願透漏</a>
                                                 </li>
                                             </ul>
                                         </div>
-                                        <div class="col-5">
-                                            <form action="" method="get">
-                                                <div class="input-group">
-                                                    <input type="search" placeholder="搜尋使用者" class="form-control" name="q" <?php $q = "";
-                                                                                                        $q = $_GET["q"] ?? ""; ?>
-                                                        value="<?= $q ?>">
-                                                    <button class="btn btn-warning"><i class="fa-solid fa-magnifying-glass fa-fw" type="submit"></i></button>
+                                        <div class="col-7 d-flex justify-content-between">
+                                            <form action="users.php" method="get">
+                                                <div class="input-group me-3">
+                                                    <!-- 頁碼設置為 1 -->
+                                                    <input type="hidden" name="p" value="1">
+                                                    <!-- 保留排序條件 -->
+                                                    <input type="hidden" name="order" value="<?= isset($order) ? $order : 1 ?>">
+                                                    <!-- 保留性別篩選條件 -->
+                                                    <?php if (isset($gender_id) && $gender_id !== ""): ?>
+                                                        <input type="hidden" name="gender_id" value="<?= $gender_id ?>">
+                                                    <?php endif; ?>
+                                                    <!-- 搜尋欄位 -->
+                                                    <input type="search" placeholder="搜尋會員" class="form-control" name="q" value="<?= isset($q) ? $q : '' ?>">
+                                                    <!-- 搜尋按鈕 -->
+                                                    <button class="btn btn-warning" type="submit">
+                                                        <i class="fa-solid fa-magnifying-glass fa-fw"></i>
+                                                    </button>
                                                 </div>
                                             </form>
+                                            <?php if (isset($_GET["q"])) : ?>
+                                                <a class="btn btn-secondary me-5" href="users.php?p=1&order=1">清空</a>
+                                            <?php endif; ?>
+                                            <div>
+                                                <a href="user_create.php?id=<?= htmlspecialchars($row['id'] ?? '') ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-warning"><i class="fa-solid fa-user-plus fa-fw"></i></a>
+                                            </div>
                                         </div>
-                                        <div class="col-1">
-                                            <a href="user_create.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-warning"><i class="fa-solid fa-user-plus fa-fw"></i></a>
-                                        </div>
+
                                     </div>
                                 </div>
                             </div>
                             <?php if ($userCount > 0): ?>
-                                <table class="table table-bordered table-striped mb-5">
+                                <table class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
                                             <th class="align-middle">
@@ -342,35 +373,32 @@ if (isset($_GET["q"])) {
                                                     <div class="d-flex align-items-center justify-content-end col-8 p-0">
                                                         id
                                                     </div>
-                                                    <div class="col-4 list-btn d-flex flex-column px-2">
-                                                        <!-- 上升排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=1<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 <?= ($order == 1) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-up"></i>
-                                                        </a>
-                                                        <!-- 下降排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=2<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 m-0 <?= ($order == 2) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-down"></i>
+                                                    <?php
+                                                    $next_order = ($order == 1) ? 2 : 1; // 切換排序
+                                                    $icon = ($order == 1) ? "fa-caret-down" : "fa-caret-up"; // 切換圖標
+                                                    ?>
+                                                    <div class="col-4 list-btn">
+                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                            class="d-flex btn p-0 <?= ($order == 1 || $order == 2) ? "active" : "" ?>">
+                                                            <i class="fa-solid <?= $icon ?>"></i>
                                                         </a>
                                                     </div>
                                                 </div>
                                             </th>
                                             <th class="align-middle">
                                                 <div class="row g-0">
-                                                    <div class="d-flex align-items-center justify-content-end col-8 ms-2 p-0">
+                                                    <div class="d-flex align-items-center justify-content-end col-8 p-0">
                                                         使用者名稱
                                                     </div>
-                                                    <div class="col-3 list-btn d-flex flex-column ps-2 pe-0">
-                                                        <!-- 上升排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=4<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 <?= ($order == 4) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-up"></i>
-                                                        </a>
-                                                        <!-- 下降排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=3<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 m-0 <?= ($order == 3) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-down"></i>
+                                                    <?php
+                                                    // 確定當前排序狀態，並計算下一次點擊的排序值
+                                                    $next_order = ($order == 4) ? 3 : 4; // 4=升冪，3=降冪
+                                                    $icon = ($order == 4) ? "fa-caret-down" : "fa-caret-up"; // 圖標變更
+                                                    ?>
+                                                    <div class="col-4 list-btn">
+                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                            class="d-flex btn p-0 <?= ($order == 3 || $order == 4) ? "active" : "" ?>">
+                                                            <i class="fa-solid <?= $icon ?>"></i>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -380,19 +408,18 @@ if (isset($_GET["q"])) {
                                             <th class="align-middle text-center">電子信箱</th>
                                             <th class="align-middle text-center">
                                                 <div class="row g-0">
-                                                    <div class="d-flex align-items-center justify-content-end col-8">
+                                                    <div class="d-flex align-items-center justify-content-end col-8 p-0">
                                                         加入時間
                                                     </div>
-                                                    <div class="col-4 list-btn d-flex flex-column">
-                                                        <!-- 上升排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=6<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 <?= ($order == 6) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-up"></i>
-                                                        </a>
-                                                        <!-- 下降排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=5<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 m-0 <?= ($order == 5) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-down"></i>
+                                                    <?php
+                                                    // 計算下一個排序狀態
+                                                    $next_order = ($order == 6) ? 5 : 6; // 6=升冪，5=降冪
+                                                    $icon = ($order == 6) ? "fa-caret-down" : "fa-caret-up"; // 根據當前狀態變更圖示
+                                                    ?>
+                                                    <div class="col-4 list-btn">
+                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                            class="d-flex btn p-0 <?= ($order == 5 || $order == 6) ? "active" : "" ?>">
+                                                            <i class="fa-solid <?= $icon ?>"></i>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -420,6 +447,9 @@ if (isset($_GET["q"])) {
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
+                                <div>
+                                    <button class="btn btn-warning">已刪除會員</button>
+                                </div>
                                 <?php
                                 // 取得當前的頁碼
                                 $p = isset($_GET["p"]) ? $_GET["p"] : 1;

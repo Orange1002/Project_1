@@ -213,6 +213,9 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
                                 </div>
 
                                 <button type="submit" class="btn btn-success"><i class="fa-solid fa-save fa-fw"></i> 更新商品</button>
+                                <a href="product_view.php?id=<?= $product["id"] ?>" class="btn btn-info btn">
+                                    <i class="fa-solid fa-eye fa-fw"></i> 檢視
+                                </a>
                             </div>
                         </div>
                     </form>

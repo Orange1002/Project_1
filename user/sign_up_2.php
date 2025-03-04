@@ -41,7 +41,7 @@ session_start();
                             <label for="birth_date" class="form-label">出生日期</label>
                             <input type="date" class="form-control" name="birth_date" id="birth_date" required>
                         </div>
-                        <button class="btn btn-primary" type="submit">送出</button>
+                        <button class="btn btn-warning" type="submit">送出</button>
                     </form>
                 </div>
             </div>

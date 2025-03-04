@@ -13,7 +13,7 @@ $pic = $_FILES["image"];
 if ($_FILES["image"]["error"] == 0) {
     $ext = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
     $newName = time() . "." . $ext;
-    if (move_uploaded_file($_FILES["image"]["tmp_name"], "../img/" . $newName)) {
+    if (move_uploaded_file($_FILES["image"]["tmp_name"], "../acticleImg/" . $newName)) {
         echo "上傳成功";
     } else {
         echo "上傳失敗";

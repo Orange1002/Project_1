@@ -1,10 +1,11 @@
-<?php
+ <?php
     require_once("../db_connect_bark_bijou.php");
 
     $p = isset($_GET["p"]) ? (int)$_GET["p"] : 1;
     $cid = isset($_GET["category_id"]) ? (int)$_GET["category_id"] : 0;
     $perpage = 4; // 每頁顯示的文章數量
     $startItem = ($p - 1) * $perpage;
+
 
     // 預設分類過濾條件為空
     $category_filter = "";
@@ -301,7 +302,7 @@
                              </tbody>
                          </table>
                          <?php if (isset($_GET["p"])): ?>
-                             <div>
+                             <div class="d-flex justify-content-between">
                                  <nav aria-label="Page navigation example">
                                      <ul class="pagination">
                                          <?php for ($i = 1; $i <= $totalPage; $i++): ?>
@@ -317,8 +318,12 @@
                                          <?php endfor; ?>
                                      </ul>
                                  </nav>
+                                 <div>
+                                     <a class="btn btn-danger" href="article-recover.php?id=1">查看已被刪除文章</a>
+                                 </div>
                              </div>
                          <?php endif; ?>
+
                      </div>
                      <!-- End of Page Wrapper -->
                  </div>

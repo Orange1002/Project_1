@@ -1,17 +1,26 @@
 <?php
-if (!isset($_GET["id"])) {
-    header("location:article-list.php");
-}
-$id = $_GET["id"];
-require_once("../db_connect_bark_bijou.php");
-$sql = "SELECT * FROM article WHERE id =$id";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$articleCount = $result->num_rows;
 
-$sql_img = "SELECT image FROM article_img WHERE article_id = $id";
-$result_image = $conn->query($sql_img);
-$row_image = $result_image->fetch_all(MYSQLI_ASSOC);
+if (!isset($_GET["id"])) {
+    die("沒有文章");
+}
+require_once("../db_connect_bark_bijou.php");
+$id = $_GET["id"];
+$sql = "SELECT * FROM article WHERE valid=0";
+
+$p = isset($_GET["p"]) ? (int)$_GET["p"] : 1; // 頁數
+$perpage = 4; // 每頁顯示數量
+$startItem = ($p - 1) * $perpage;
+
+$sqlDeleted = "SELECT COUNT(*) as deleted_count FROM article WHERE valid = 0";
+$resultDeleted = $conn->query($sqlDeleted);
+$deletedCount = $resultDeleted->fetch_assoc()["deleted_count"];
+
+$sql = "SELECT * FROM article WHERE valid=0 LIMIT $startItem, $perpage";
+$result = $conn->query($sql);
+$rows = $result->fetch_all(MYSQLI_ASSOC);
+
+$totalPage = ceil($deletedCount / $perpage);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,7 +33,7 @@ $row_image = $result_image->fetch_all(MYSQLI_ASSOC);
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>文章</title>
+    <title>文章回復</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -207,40 +216,71 @@ $row_image = $result_image->fetch_all(MYSQLI_ASSOC);
                 <!-- 公版以下-->
 
                 <div class="container-fluid">
-                    <?php if ($articleCount > 0): ?>
-                        <div class="article-detail">
-                            <div class="d-sm-flex align-items-center d-flex justify-content-center mb-4">
-                                <h1 class="h3 mb-0 text-gray-800 text-center"><?= $row["title"] ?></h1>
-                            </div>
-                            <!-- 圖片 -->
-                            <?php foreach ($row_image as $img): ?>
-                                <div class="col">
-                                    <div class="d-sm-flex align-content-center d-flex justify-content-center mb-4">
-                                        <img src="../img/<?= $img["image"] ?>" alt="" class="img-fluid object-fit-cover">
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                            <div>
-                                <p><?= nl2br(htmlspecialchars($row["content"])) ?></p>
-                            </div>
-                            <div class="py-2 d-flex justify-content-between">
-
-                                <a href="article-edit.php?id=<?= $row["id"] ?>" class=""><button class="btn btn-primary text-white "><i class="fa-solid fa-pen-to-square fa-fw"></i></button></a>
-                                <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="fa-solid fa-trash fa-fw"></i></a>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <h1>文章不存在</h1>
-                    <?php endif; ?>
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">文章回復</h1>
+                    </div>
                     <div class="pt-3">
                         <a href="../article/article-list.php"><button class="btn btn-warning text-white rounded-pill"><i class="fa-solid fa-arrow-left fa-fw text-white"></i>文章列表</button></a>
                     </div>
-                    <!-- End of Page Wrapper -->
+                    <div class="py-2">
+                        目前已刪除<?= $deletedCount ?>篇文章
+                    </div>
+                    <div>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>標題</th>
+                                    <th>內文</th>
+                                    <th>發表時間</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($rows as $row): ?>
+
+                                    <div class="modal fade" id="infoModal<?= $row["id"] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-sm">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">系統資訊</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    確認刪除此文章?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a role="button" class="btn btn-danger" href="foreverD.php?id=<?= $row["id"] ?>">確認</a>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <tr>
+                                        <td><?= htmlspecialchars($row["title"]) ?></td>
+                                        <td><?= htmlspecialchars(mb_substr($row["content"], 0, 50, 'UTF-8')) ?>...<a class="ps-1" style="color:rgb(241, 162, 97);" href="article-detail.php?id=<?= $row['id'] ?>">查看更多<i class="fa-solid fa-angles-right fa-fw"></i></a></td>
+                                        <td><?= $row["created_date"] ?></td>
+                                        <td class="d-flex gap-2">
+                                            <a href="articleRecover.php?id=<?= $row["id"] ?>" class=""><button class="btn btn-primary text-white "><i class="fa-solid fa-rotate-left"></i></button></a>
+                                            <a class="" data-bs-toggle="modal" data-bs-target="#infoModal<?= $row["id"] ?>"><button class="btn btn-danger text-white "><i class="fa-solid fa-trash fa-fw"></i></button></a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <nav>
+                            <ul class="pagination">
+                                <?php for ($i = 1; $i <= $totalPage; $i++): ?>
+                                    <li class="page-item <?= $i == $p ? 'active' : '' ?>">
+                                        <a class="page-link" href="?<?= http_build_query($_GET) ?>&p=<?= $i ?>"><?= $i ?></a>
+
+                                    </li>
+                                <?php endfor; ?>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <?php include("../js.php") ?>
+            <?php include("../js.php") ?>
 
 
 </body>

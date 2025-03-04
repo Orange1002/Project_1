@@ -292,11 +292,44 @@ $products = $stmt->fetchAll();
                         <?php if ($total_pages > 1): ?>
                             <nav>
                                 <ul class="pagination justify-content-center mt-3">
-                                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                        <li class="page-item <?= ($current_page == $i) ? 'active' : '' ?>">
-                                            <a class="page-link" href="?search=<?= urlencode($search) ?>&page=<?= $i ?>"><?= $i ?></a>
-                                        </li>
-                                    <?php endfor; ?>
+                                    <!-- 上一頁 -->
+                                    <li class="page-item <?= ($current_page == 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?search=<?= urlencode($search) ?>&category_id=<?= urlencode($category_id) ?>&sort=<?= urlencode($sort) ?>&page=<?= max(1, $current_page - 1) ?>">«</a>
+                                    </li>
+
+                                    <?php
+                                    $max_pages_to_show = 5; // 最多顯示 5 個頁碼（包含當前頁）
+                                    $start_page = max(1, $current_page - 2);
+                                    $end_page = min($total_pages, $start_page + $max_pages_to_show - 1);
+
+                                    // 如果開始頁大於 1，顯示 "1 ..." 的省略符號
+                                    if ($start_page > 1) {
+                                        echo '<li class="page-item"><a class="page-link" href="?search=' . urlencode($search) . '&category_id=' . urlencode($category_id) . '&sort=' . urlencode($sort) . '&page=1">1</a></li>';
+                                        if ($start_page > 2) {
+                                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                        }
+                                    }
+
+                                    // 顯示頁碼
+                                    for ($i = $start_page; $i <= $end_page; $i++) {
+                                        echo '<li class="page-item ' . ($current_page == $i ? 'active' : '') . '">
+                        <a class="page-link" href="?search=' . urlencode($search) . '&category_id=' . urlencode($category_id) . '&sort=' . urlencode($sort) . '&page=' . $i . '">' . $i . '</a>
+                    </li>';
+                                    }
+
+                                    // 如果結束頁小於總頁數，顯示 "… 總頁數"
+                                    if ($end_page < $total_pages) {
+                                        if ($end_page < $total_pages - 1) {
+                                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                        }
+                                        echo '<li class="page-item"><a class="page-link" href="?search=' . urlencode($search) . '&category_id=' . urlencode($category_id) . '&sort=' . urlencode($sort) . '&page=' . $total_pages . '">' . $total_pages . '</a></li>';
+                                    }
+                                    ?>
+
+                                    <!-- 下一頁 -->
+                                    <li class="page-item <?= ($current_page == $total_pages) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?search=<?= urlencode($search) ?>&category_id=<?= urlencode($category_id) ?>&sort=<?= urlencode($sort) ?>&page=<?= min($total_pages, $current_page + 1) ?>">»</a>
+                                    </li>
                                 </ul>
                             </nav>
                         <?php endif; ?>

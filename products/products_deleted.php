@@ -3,6 +3,7 @@ session_start();
 
 require_once("../pdo_connect_bark_bijou.php");
 
+$page = $_GET['page'] ?? 1;
 try {
     $stmt = $db_host->prepare("SELECT products.*, 
        COALESCE((SELECT img_url 
@@ -30,7 +31,7 @@ WHERE products.valid = 0");
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Bark & Bijou</title>
+    <title>回收站</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -150,7 +151,7 @@ WHERE products.valid = 0");
                         <h1 class="h3 mb-0 text-gray-800">商品列表</h1>
                     </div>
                     <div class="py-2">
-                        <a class="btn btn-primary" href="products.php"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
+                        <a class="btn btn-primary" href="products.php?page=<?= $page ?>"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
                     </div>
 
                     <h2 class="mt-3">回收站（已刪除商品）</h2>

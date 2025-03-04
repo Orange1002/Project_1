@@ -86,7 +86,7 @@ $products = $stmt->fetchAll();
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Bark & Bijou</title>
+    <title>商品列表</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -242,7 +242,7 @@ $products = $stmt->fetchAll();
                     </form>
                     <div class="py-2">
 
-                        <a class="btn btn-success float-end mb-3" href="create_product.php"><i class="fa-solid fa-plus fa-fw"></i> 新增商品</a>
+                        <a class="btn btn-success float-end mb-3" href="create_product.php?page=<?= $current_page ?>"><i class="fa-solid fa-plus fa-fw"></i> 新增商品</a>
                     </div>
                     <?php if (count($products) > 0): ?>
                         <table class="table table-bordered table-striped mt-3">
@@ -276,10 +276,10 @@ $products = $stmt->fetchAll();
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <a href="product_edit.php?id=<?= $product["id"] ?>" class="btn btn-primary btn-sm">
+                                            <a href="product_edit.php?id=<?= $product["id"] ?>&page=<?= $current_page ?>" class="btn btn-primary btn-sm">
                                                 <i class="fa-solid fa-pen fa-fw"></i> 編輯
                                             </a>
-                                            <a href="product_view.php?id=<?= $product["id"] ?>" class="btn btn-info btn-sm">
+                                            <a href="product_view.php?id=<?= $product["id"] ?>&page=<?= $current_page ?>" class="btn btn-info btn-sm">
                                                 <i class="fa-solid fa-eye fa-fw"></i> 檢視
                                             </a>
                                             <a href="product_delete.php?id=<?= $product["id"] ?>" class="btn btn-danger btn-sm" onclick="return confirm('確定要刪除這個商品嗎？');">
@@ -336,7 +336,7 @@ $products = $stmt->fetchAll();
                                 </ul>
                             </nav>
                         <?php endif; ?>
-                        <a href="products_deleted.php" class="btn btn-warning mb-2 float-end">
+                        <a href="products_deleted.php?page=<?= $current_page ?>" class="btn btn-warning mb-2 float-end">
                             <i class="fa-solid fa-trash fa-fw"></i> 回收站
                         </a>
                     <?php else: ?>

@@ -4,6 +4,7 @@ require_once("../pdo_connect_bark_bijou.php");
 
 
 $product_id = $_GET['id'] ?? null;
+$page = $_GET['page'] ?? 1;
 
 if (!$product_id) {
     die("❌ 錯誤：缺少商品 ID");
@@ -34,7 +35,7 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Bark & Bijou</title>
+    <title>商品編輯</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -154,7 +155,7 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
                         <h1 class="h3 mb-0 text-gray-800">商品編輯</h1>
                     </div>
                     <div class="py-2">
-                        <a class="btn btn-primary" href="products.php"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
+                        <a class="btn btn-primary" href="products.php?page=<?= $page ?>"><i class="fa-solid fa-arrow-left fa-fw"></i> 返回商品列表</a>
                     </div>
                     <form action="process_edit_product.php" method="POST" enctype="multipart/form-data">
                         <input type="hidden" name="product_id" value="<?= htmlspecialchars($product["id"]) ?>">
@@ -213,7 +214,7 @@ $categories = $db_host->query("SELECT * FROM product_categories")->fetchAll();
                                 </div>
 
                                 <button type="submit" class="btn btn-success"><i class="fa-solid fa-save fa-fw"></i> 更新商品</button>
-                                <a href="product_view.php?id=<?= $product["id"] ?>" class="btn btn-info btn">
+                                <a href="product_view.php?id=<?= $product["id"] ?>&page=<?= $page ?>" class="btn btn-info btn">
                                     <i class="fa-solid fa-eye fa-fw"></i> 檢視
                                 </a>
                             </div>

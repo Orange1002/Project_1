@@ -45,13 +45,18 @@ $userCount = $result->num_rows;
     <meta name="description" content="">
     <meta name="author" content="">
     <?php include("../css.php") ?>
+    <style>
+        .primary {
+            background-color: rgba(245, 160, 23, 0.919);
+        }
+    </style>
 </head>
 
 <body id="page-top">
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
-        <ul class="navbar-nav sidebar sidebar-dark accordion bg-warning" id="accordionSidebar">
+        <ul class="navbar-nav sidebar sidebar-dark accordion primary" id="accordionSidebar">
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="users.php">
                 <div class="sidebar-brand-icon rotate-n-15">
@@ -165,7 +170,7 @@ $userCount = $result->num_rows;
                     </div>
                     <div class="container">
                         <div class="py-2 ms-3">
-                            <a href="users.php?p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="fs-4 btn btn-secondary"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
+                            <a href="users.php?order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>&id=<?= isset($_GET['id']) ? $_GET['id'] : '' ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?><?= isset($_GET['q']) ? '&q=' . $_GET['q'] : '' ?><?= isset($_GET['idSearch']) ? '&idSearch=' . $_GET['idSearch'] : '' ?>" class="fs-4 btn btn-secondary"><i class="fa-solid fa-arrow-left fa-fw"></i></a>
                         </div>
                         <div class="row justify-content-center">
                             <?php if ($userCount > 0): ?>

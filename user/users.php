@@ -10,6 +10,7 @@ require_once("../db_connect_bark_bijou.php");
 $gender_id = isset($_GET['gender_id']) ? $_GET['gender_id'] : "";
 $q = isset($_GET['q']) ? $_GET['q'] : "";
 $order = isset($_GET['order']) ? $_GET['order'] : 1;
+$idSearch = isset($_GET['idSearch']) ? $_GET['idSearch'] : "";  // 新增 ID 參數
 
 // 先查詢所有使用者的數量
 $sqlAll = "SELECT users.*, COALESCE(gender.name, '不願透露') AS gender_name 
@@ -34,6 +35,11 @@ if ($gender_id !== "") {
 // 檢查是否有搜尋關鍵字
 if ($q !== "") {
     $whereClause .= " AND users.name LIKE '%$q%'";
+}
+
+// 檢查是否有 ID 搜尋條件
+if ($idSearch !== "") {
+    $whereClause .= " AND users.id = " . (int)$idSearch;  // 增加 ID 搜尋條件
 }
 
 $orderClause = "";
@@ -94,7 +100,10 @@ if ($gender_id !== "") {
 if ($q !== "") {
     $queryString .= "&q=" . urlencode($q); // 保留搜尋條件
 }
-if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !isset($_GET["order"])) {
+if ($idSearch !== "") {
+    $queryString .= "&id=" . urlencode($idSearch); // 保留 ID 篩選
+}
+if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !isset($_GET["order"]) && !isset($_GET["idSearch"])) {
     header("location: users.php?p=1&order=1");
 }
 ?>
@@ -112,6 +121,10 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
     <meta name="author" content="">
     <?php include("../css.php") ?>
     <style>
+        .primary {
+            background-color: rgba(245, 160, 23, 0.919);
+        }
+
         .list-btn a {
             color: #ffc107;
             background-color: transparent;
@@ -185,7 +198,7 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
-        <ul class="navbar-nav sidebar sidebar-dark accordion bg-warning" id="accordionSidebar">
+        <ul class="navbar-nav sidebar sidebar-dark accordion primary" id="accordionSidebar">
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="users.php">
                 <div class="sidebar-brand-icon rotate-n-15">
@@ -282,43 +295,43 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
                     <div class="d-sm-flex align-items-center justify-content-between">
                         <div class="container-fluid">
                             <div class="py-2 row align-items-center mb-3">
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="hstack gap-2 align-item-center">
 
                                         <div>共 <?= $filteredUserCount ?> 位使用者</div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-9">
                                     <div class="row g-0">
                                         <div class="col-5 d-flex justify-content-end">
                                             <ul class="nav nav-pills gap-2">
-                                                <!-- 全部（不帶 gender_id） -->
+                                                <!-- 全部 -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (!isset($_GET["gender_id"])) ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= $order ?><?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">
+                                                        href="users.php?p=1&order=<?= $order ?><?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?><?= isset($idSearch) && $idSearch !== "" ? '&idSearch=' . urlencode($idSearch) : '' ?>">
                                                         全部
                                                     </a>
                                                 </li>
                                                 <!-- 男性 -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "1") ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=1<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">男性</a>
+                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=1<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?><?= isset($idSearch) && $idSearch !== "" ? '&idSearch=' . urlencode($idSearch) : '' ?>">男性</a>
                                                 </li>
                                                 <!-- 女性 -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "2") ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=2<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">女性</a>
+                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=2<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?><?= isset($idSearch) && $idSearch !== "" ? '&idSearch=' . urlencode($idSearch) : '' ?>">女性</a>
                                                 </li>
                                                 <!-- 不願透漏 -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "3") ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=3<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">不願透漏</a>
+                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=3<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?><?= isset($idSearch) && $idSearch !== "" ? '&idSearch=' . urlencode($idSearch) : '' ?>">不願透漏</a>
                                                 </li>
                                             </ul>
                                         </div>
                                         <div class="col-7 d-flex justify-content-between">
-                                            <form action="users.php" method="get">
-                                                <div class="input-group me-3">
+                                            <form action="users.php" method="get" class="me-3" onsubmit="return validateSearch()">
+                                                <div class="input-group">
                                                     <!-- 頁碼設置為 1 -->
                                                     <input type="hidden" name="p" value="1">
                                                     <!-- 保留排序條件 -->
@@ -327,22 +340,40 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
                                                     <?php if (isset($gender_id) && $gender_id !== ""): ?>
                                                         <input type="hidden" name="gender_id" value="<?= $gender_id ?>">
                                                     <?php endif; ?>
-                                                    <!-- 搜尋欄位 -->
-                                                    <input type="search" placeholder="搜尋會員" class="form-control" name="q" value="<?= isset($q) ? $q : '' ?>">
-                                                    <!-- 搜尋按鈕 -->
-                                                    <button class="btn btn-warning" type="submit">
+                                                    <!-- 搜尋名稱欄位 -->
+                                                    <input type="search" placeholder="透過使用者名稱搜尋" class="form-control ms-3" name="q" value="<?= isset($q) ? $q : '' ?>">
+                                                    <button class="btn btn-warning rounded-end" type="submit">
                                                         <i class="fa-solid fa-magnifying-glass fa-fw"></i>
                                                     </button>
+                                                    <?php if (isset($_GET["q"])) : ?>
+                                                        <a class="btn btn-secondary rounded ms-2" href="users.php?p=1&order=1">清空</a>
+                                                    <?php endif; ?>
                                                 </div>
                                             </form>
-                                            <?php if (isset($_GET["q"])) : ?>
-                                                <a class="btn btn-secondary me-5" href="users.php?p=1&order=1">清空</a>
-                                            <?php endif; ?>
+                                            <form action="users.php" method="get" onsubmit="return validateSearch()">
+                                                <div class="input-group">
+                                                    <!-- 頁碼設置為 1 -->
+                                                    <input type="hidden" name="p" value="1">
+                                                    <!-- 保留排序條件 -->
+                                                    <input type="hidden" name="order" value="<?= isset($order) ? $order : 1 ?>">
+                                                    <!-- 保留性別篩選條件 -->
+                                                    <?php if (isset($gender_id) && $gender_id !== ""): ?>
+                                                        <input type="hidden" name="gender_id" value="<?= $gender_id ?>">
+                                                    <?php endif; ?>
+                                                    <!-- 搜尋 ID 欄位 -->
+                                                    <input type="search" placeholder="透過ID搜尋" class="form-control" name="idSearch" value="<?= isset($idSearch) ? $idSearch : '' ?>">
+                                                    <button class="btn btn-warning rounded-end" type="submit">
+                                                        <i class="fa-solid fa-magnifying-glass fa-fw"></i>
+                                                    </button>
+                                                    <?php if (isset($_GET["idSearch"])) : ?>
+                                                        <a class="btn btn-secondary rounded ms-2" href="users.php?p=1&order=1">清空</a>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </form>
                                             <div>
-                                                <a href="user_create.php?id=<?= htmlspecialchars($row['id'] ?? '') ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-warning"><i class="fa-solid fa-user-plus fa-fw"></i></a>
+                                                <a href="user_create.php?id=<?= htmlspecialchars($row['id'] ?? '') ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?><?= isset($_GET['idSearch']) ? '&idSearch=' . $_GET['idSearch'] : '' ?>" class="btn btn-warning"><i class="fa-solid fa-user-plus fa-fw"></i></a>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
@@ -352,15 +383,15 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
                                         <tr>
                                             <th class="align-middle">
                                                 <div class="row g-0">
-                                                    <div class="d-flex align-items-center justify-content-end col-8 p-0">
+                                                    <div class="d-flex align-items-center justify-content-end col-7 p-0">
                                                         id
                                                     </div>
                                                     <?php
                                                     $next_order = ($order == 1) ? 2 : 1; // 切換排序
                                                     $icon = ($order == 1) ? "fa-caret-down" : "fa-caret-up"; // 切換圖標
                                                     ?>
-                                                    <div class="col-4 list-btn">
-                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                    <div class="col-5 list-btn">
+                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?><?= isset($_GET['q']) ? '&q=' . $_GET['q'] : '' ?>"
                                                             class="d-flex btn p-0 <?= ($order == 1 || $order == 2) ? "active" : "" ?>">
                                                             <i class="fa-solid <?= $icon ?>"></i>
                                                         </a>
@@ -378,7 +409,7 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
                                                     $icon = ($order == 4) ? "fa-caret-down" : "fa-caret-up"; // 圖標變更
                                                     ?>
                                                     <div class="col-4 list-btn">
-                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?><?= isset($_GET['q']) ? '&q=' . $_GET['q'] : '' ?>"
                                                             class="d-flex btn p-0 <?= ($order == 3 || $order == 4) ? "active" : "" ?>">
                                                             <i class="fa-solid <?= $icon ?>"></i>
                                                         </a>
@@ -390,7 +421,7 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
                                             <th class="align-middle text-center">電子信箱</th>
                                             <th class="align-middle text-center">
                                                 <div class="row g-0">
-                                                    <div class="d-flex align-items-center justify-content-end col-8 p-0">
+                                                    <div class="d-flex align-items-center justify-content-end col-7 p-0">
                                                         加入時間
                                                     </div>
                                                     <?php
@@ -399,7 +430,7 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
                                                     $icon = ($order == 6) ? "fa-caret-down" : "fa-caret-up"; // 根據當前狀態變更圖示
                                                     ?>
                                                     <div class="col-4 list-btn">
-                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?><?= isset($_GET['q']) ? '&q=' . $_GET['q'] : '' ?>"
                                                             class="d-flex btn p-0 <?= ($order == 5 || $order == 6) ? "active" : "" ?>">
                                                             <i class="fa-solid <?= $icon ?>"></i>
                                                         </a>
@@ -411,24 +442,33 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
                                     </thead>
                                     <tbody>
                                         <?php foreach ($rows as $row): ?>
-                                            <!-- Modal -->
-                                            <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <!-- Modal (為每個使用者生成獨立的 Modal) -->
+                                            <div class="modal fade" id="infoModal<?= $row['id'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog modal-sm">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             <h1 class="modal-title fs-5" id="exampleModalLabel">系統資訊</h1>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                        <div class="modal-body">
-                                                            確認刪除使用者?
+                                                        <div class="modal-body text-center">
+                                                            確認 <span class="fw-bold text-danger">刪除</span> 會員 <?= htmlspecialchars($row["name"]) ?> ?
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <a role="button" type="button" class="btn btn-danger" href="doDeleteUser.php?id=<?= $row["id"] ?>">確認</a>
+                                                            <?php
+                                                            // 取得當前網址參數，並去除 id 避免影響刪除操作
+                                                            $queryParams = $_GET;
+                                                            unset($queryParams["id"]); // 刪除 id 避免影響後續跳轉
+
+                                                            // 重新組合查詢字串
+                                                            $queryString = http_build_query($queryParams);
+                                                            ?>
+                                                            <a role="button" class="btn btn-danger" href="doDeleteUser.php?id=<?= $row["id"] ?>&<?= $queryString ?>">確認</a>
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
+
                                             <tr>
                                                 <td class="align-middle text-center"><?= $row["id"] ?></td>
                                                 <td class="align-middle text-center"><?= $row["name"] ?></td>
@@ -437,18 +477,18 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
                                                 <td class="align-middle text-center"><?= $row["email"] ?></td>
                                                 <td class="align-middle text-center"><?= $row["created_at"] ?></td>
                                                 <td class="align-middle text-center p-0">
-                                                    <a href="user_edit.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-success btn-sm"><i class="fa-solid fa-fw fa-pen"></i></a>
+                                                    <a href="user_edit.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?><?= isset($_GET['q']) ? '&q=' . $_GET['q'] : '' ?><?= isset($_GET['idSearch']) ? '&idSearch=' . $_GET['idSearch'] : '' ?>" class="btn btn-success btn-sm"><i class="fa-solid fa-fw fa-pen"></i></a>
 
-                                                    <a href="user_view.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>" class="btn btn-primary btn-sm"><i class="fa-regular fa-eye"></i></a>
+                                                    <a href="user_view.php?id=<?= $row['id'] ?>&p=<?= isset($_GET['p']) ? $_GET['p'] : 1 ?>&order=<?= isset($_GET['order']) ? $_GET['order'] : 1 ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?><?= isset($_GET['q']) ? '&q=' . $_GET['q'] : '' ?><?= isset($_GET['idSearch']) ? '&idSearch=' . $_GET['idSearch'] : '' ?>" class="btn btn-primary btn-sm"><i class="fa-regular fa-eye fa-fw"></i></a>
 
-                                                    <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="fa-solid fa-trash fa-fw"></i></a>
+                                                    <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal<?= $row['id'] ?>"><i class="fa-solid fa-trash fa-fw"></i></a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
-                                <div>
-                                    <a href="user_deleted.php?p=1&oeder=1" class="btn btn-warning">已刪除會員</a>
+                                <div class="d-flex justify-content-end">
+                                    <a href="user_deleted.php?p=1&oeder=1" class="btn btn-danger">已刪除會員</a>
                                 </div>
                                 <?php
                                 // 取得當前的頁碼
@@ -457,10 +497,20 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
                                 $order = isset($_GET["order"]) ? $_GET["order"] : 1;
                                 // 取得篩選的 gender_id
                                 $gender_id = isset($_GET["gender_id"]) ? $_GET["gender_id"] : "";
+                                // 取得搜尋關鍵字 q 和 idSearch
+                                $q = isset($_GET["q"]) ? $_GET["q"] : "";
+                                $idSearch = isset($_GET["idSearch"]) ? $_GET["idSearch"] : "";
+
                                 // 組合 URL 查詢字串
                                 $queryString = "order={$order}";
                                 if ($gender_id !== "") {
                                     $queryString .= "&gender_id={$gender_id}";
+                                }
+                                if ($q !== "") {
+                                    $queryString .= "&q={$q}";
+                                }
+                                if ($idSearch !== "") {
+                                    $queryString .= "&idSearch={$idSearch}";
                                 }
                                 ?>
                                 <?php if (isset($_GET["p"])): ?>
@@ -531,7 +581,17 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
     </div>
     <?php include("../js.php") ?>
     <script>
+        function validateSearch() {
+            var q = document.getElementsByName("q")[0].value;
+            var idSearch = document.getElementsByName("idSearch")[0].value;
 
+            // 如果 q 和 idSearch 都是空的，則顯示警告並不提交表單
+            if (q.trim() === "" && idSearch.trim() === "") {
+                alert("請至少輸入一個搜尋條件");
+                return false; // 阻止表單提交
+            }
+            return true; // 允許提交表單
+        }
     </script>
 </body>
 

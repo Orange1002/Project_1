@@ -374,7 +374,7 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                         <td class="align-middle">
                                             <div class="d-flex justify-content-center align-items-center">
                                                 <a class="btn btn-success" href="course_content.php?id=<?= $course["id"] ?>&p=<?=$p?>&order=<?=$order?><?php if(isset($q)){echo "&q=$q";}?><?php if(isset($category_id)){echo "&category_id=$category_id";}?>"><i class="fa-solid fa-eye"></i></i></a>
-                                                <a class="btn btn-primary ms-1" href="course_edit.php?id=<?= $course["id"] ?>"><i class="fa-solid fa-pen-to-square fa-fw"></i></a>
+                                                <a class="btn btn-primary ms-1" href="course_edit.php?id=<?= $course["id"] ?>&p=<?=$p?>&order=<?=$order?><?php if(isset($q)){echo "&q=$q";}?><?php if(isset($category_id)){echo "&category_id=$category_id";}?>"><i class="fa-solid fa-pen-to-square fa-fw"></i></a>
                                                 <a class="btn btn-danger ms-1" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="fa-solid fa-trash fa-fw"></i></a>
                                             </div>
                                         </td>

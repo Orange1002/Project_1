@@ -6,6 +6,20 @@ if (!isset($_GET["id"])) {
 }
 $id = $_GET["id"];
 
+if (isset($_GET["p"]) && isset($_GET["order"])) {
+    $p = $_GET["p"];
+    $order = $_GET["order"];
+}
+
+if (isset($_GET["q"])) {
+    $q = $_GET["q"];
+}
+
+if (isset($_GET["category_id"])) {
+    $category_id = $_GET["category_id"];
+}
+
+
 require_once("../db_connect_bark_bijou.php");
 $sql = "SELECT * FROM course WHERE id = $id AND valid=1";
 $result = $conn->query($sql);
@@ -144,8 +158,8 @@ $rowsLocation = $resultLocation->fetch_all(MYSQLI_ASSOC);
             <hr class="sidebar-divider">
         </ul>
         <!-- End of Sidebar -->
-       <!-- Content Wrapper -->
-       <div id="content-wrapper" class="d-flex flex-column">
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
             <!-- Main Content -->
             <div id="content">
                 <!-- Topbar -->
@@ -281,8 +295,12 @@ $rowsLocation = $resultLocation->fetch_all(MYSQLI_ASSOC);
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center justify-content-center">編輯</label>
                             <div class="col-6 bg-primary d-flex align-items-center justify-content-between py-3">
                                 <div>
-                                    <a href="course.php" class="btn btn-orange">返回目錄</a>
-                                    <a href="course_content.php?id=<?= $row["id"] ?>" class="btn btn-orange ms-3">返回內容</a>
+                                    <a href="course.php?p=<?= $p ?>&order=<?= $order ?><?php if (isset($q) && $_GET["q"] !== "") {
+                                                                                            echo "&q=$q";
+                                                                                        } ?><?php if (isset($category_id)) {
+                                                                                                echo "&category=$category_id";
+                                                                                            } ?>" class="btn btn-orange">返回目錄</a>
+                                    <a href="course_content.php?id=<?= $row["id"] ?>&p=<?= $p ?>&order=<?= $order ?><?php if(isset($q) && $_GET["q"] !== ""){echo "&q=$q";}?><?php if(isset($category_id)){echo "&category=$category_id";}?>" class="btn btn-orange ms-3">返回內容</a>
                                 </div>
                                 <div>
                                     <a class="btn btn-danger me-3" data-bs-toggle="modal" data-bs-target="#infoModal">刪除</a>

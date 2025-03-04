@@ -6,20 +6,17 @@ if (!isset($_GET["id"])) {
 }
 $id = $_GET["id"];
 
-if(isset($_GET["p"]) && isset($_GET["order"])){
+if (isset($_GET["p"]) && isset($_GET["order"])) {
     $p = $_GET["p"];
     $order = $_GET["order"];
-    echo "$p and $order";
 }
 
-if(isset($_GET["q"])){
+if (isset($_GET["q"])) {
     $q = $_GET["q"];
-    echo "$q";
 }
 
-if(isset($_GET["category_id"])){
+if (isset($_GET["category_id"])) {
     $category_id = $_GET["category_id"];
-    echo "$category_id";
 }
 
 
@@ -113,9 +110,10 @@ $rowsLocation = $resultLocation->fetch_assoc();
             background: rgba(255, 115, 0, 0.9);
         }
 
-        .h-size1{
+        .img-size1 {
             max-width: 500px;
-           
+            max-height: 500px;
+            object-fit: cover;
         }
     </style>
 
@@ -214,7 +212,7 @@ $rowsLocation = $resultLocation->fetch_assoc();
                     </ul>
                 </nav>
                 <!-- End of Topbar -->
-                
+
                 <div class="container mb-4 text-center">
                     <h1 class="h1 mb-0 text-gray-800 fw-bold">課程內容</h1>
                     <div class="d-flex justify-content-center mt-3">
@@ -232,7 +230,7 @@ $rowsLocation = $resultLocation->fetch_assoc();
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程照片</label>
                         <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white text-start"><img class="object-fit-cover h-size1" src="./course_images/<?= $rowImg["image"] ?>"></h4>
+                            <h4 class="mb-0 bg-white text-start "><img class="img-size1" src="./course_images/<?= $rowImg["image"] ?>"></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
@@ -283,8 +281,8 @@ $rowsLocation = $resultLocation->fetch_assoc();
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center justify-content-center">編輯</label>
                         <div class="col-6 bg-primary d-flex align-items-center justify-content-between py-3">
-                            <a href="course.php" class="btn btn-orange">返回</a>
-                            <a class="btn btn-orange" href="course_edit.php?id=<?= $row["id"] ?>">編輯</a>
+                            <a href="course.php?p=<?= $p ?>&order=<?= $order ?><?php if(isset($q) && $_GET["q"] !== ""){echo "&q=$q";}?><?php if(isset($category_id)){echo "&category=$category_id";}?>" class="btn btn-orange">返回</a>
+                            <a class="btn btn-orange" href="course_edit.php?id=<?= $row["id"] ?>&p=<?= $p ?>&order=<?= $order ?><?php if(isset($q) && $_GET["q"] !== ""){echo "&q=$q";}?><?php if(isset($category_id)){echo "&category=$category_id";}?>">編輯</a>
                         </div>
                     </div>
 

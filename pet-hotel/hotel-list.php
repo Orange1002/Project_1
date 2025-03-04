@@ -1,13 +1,13 @@
 <?php
-require_once "../db_connect_bark_bijou.php";
+require_once "./db_connect_bark_bijou.php";
 
 // 排序處理
 $sort = isset($_GET['sort']) && in_array(strtoupper($_GET['sort']), ['ASC', 'DESC'])
     ? strtoupper($_GET['sort'])
-    : 'ASC'; // 預設升序
+    : 'ASC';
 $sortColumn = isset($_GET['sort_column']) && in_array($_GET['sort_column'], ['id', 'price_per_night'])
     ? $_GET['sort_column']
-    : 'id'; // 預設按 id 排序
+    : 'id';
 
 // 分頁參數
 $perpage = 10;
@@ -24,7 +24,7 @@ $whereClause = "";
 // 搜尋條件
 if (isset($_GET["q"])) {
     $q = $conn->real_escape_string($_GET["q"]);
-    $whereClause = " AND (hotel_name LIKE '%$q%' OR address LIKE '%$q%')";
+    $whereClause .= " AND (hotel_name LIKE '%$q%' OR address LIKE '%$q%')";
 }
 
 // 過濾條件（例如按類型）
@@ -33,13 +33,27 @@ if (isset($_GET["filter"])) {
     $whereClause .= " AND type.name = '$filter'";
 }
 
+// 篩選有空房的旅館
+if (isset($_GET["available"]) && $_GET["available"] == 1) {
+    $whereClause .= " AND (hotel.total_rooms - (
+        SELECT COUNT(*) 
+        FROM bookings 
+        WHERE bookings.hotel_id = hotel.id 
+        AND bookings.check_in <= CURDATE() 
+        AND bookings.check_out > CURDATE()
+    )) > 0";
+}
+
 // 計算總數
-$countSql = "SELECT COUNT(*) as total FROM hotel JOIN type ON hotel.type_id = type.id WHERE valid = 1" . $whereClause;
+$countSql = "SELECT COUNT(*) as total 
+             FROM hotel 
+             JOIN type ON hotel.type_id = type.id 
+             WHERE valid = 1" . $whereClause;
 $resultAll = $conn->query($countSql);
 $hotelCount = $resultAll->fetch_assoc()['total'];
 $totalPage = ceil($hotelCount / $perpage);
 
-// 最終 SQL（動態排序）
+// 最終 SQL
 $sql = "$sqlBase $whereClause ORDER BY hotel.$sortColumn $sort LIMIT $startItem, $perpage";
 
 // 執行查詢
@@ -216,6 +230,17 @@ $hotels = $result->fetch_all(MYSQLI_ASSOC);
                 <!-- End of Topbar -->
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
+                    <?php
+                    if (isset($_GET['error']) && $_GET['error'] == 'fully_booked') {
+                        echo '<div class="alert alert-danger">該時段房間已滿，請選擇其他日期或旅館</div>';
+                    }
+                    if (isset($_GET['success']) && $_GET['success'] == 'booking_confirmed') {
+                        echo '<div class="alert alert-success">預約成功！</div>';
+                    }
+                    if (isset($_GET['error']) && $_GET['error'] == 'booking_failed') {
+                        echo '<div class="alert alert-danger">預約失敗，請稍後再試</div>';
+                    }
+                    ?>
                     <div class="text-center">
                         <div class="text-left">
                             <a href="hotel-create.php" class="btn btn-primary position-absolute">新增旅館</a>
@@ -228,15 +253,18 @@ $hotels = $result->fetch_all(MYSQLI_ASSOC);
                         <?php endif; ?>
                         <form action="" method="get">
                             <div class="filters mb-3">
-                                <a href="?" class="btn <?php echo !isset($_GET['filter']) ? 'btn-primary' : 'btn-light'; ?>">全部</a>
-                                <a href="?filter=迷你犬<?php echo isset($_GET['q']) ? '&q=' . htmlspecialchars($_GET['q']) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>"
+                                <a href="?" class="btn <?php echo !isset($_GET['filter']) && !isset($_GET['available']) ? 'btn-primary' : 'btn-light'; ?>">全部</a>
+                                <a href="?filter=迷你犬<?php echo isset($_GET['q']) ? '&q=' . htmlspecialchars($_GET['q']) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?><?php echo isset($_GET['available']) ? '&available=' . htmlspecialchars($_GET['available']) : ''; ?>"
                                     class="btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === '迷你犬') ? 'btn-primary' : 'btn-light'; ?>">迷你犬</a>
-                                <a href="?filter=小型犬<?php echo isset($_GET['q']) ? '&q=' . htmlspecialchars($_GET['q']) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>"
+                                <a href="?filter=小型犬<?php echo isset($_GET['q']) ? '&q=' . htmlspecialchars($_GET['q']) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?><?php echo isset($_GET['available']) ? '&available=' . htmlspecialchars($_GET['available']) : ''; ?>"
                                     class="btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === '小型犬') ? 'btn-primary' : 'btn-light'; ?>">小型犬</a>
-                                <a href="?filter=中型犬<?php echo isset($_GET['q']) ? '&q=' . htmlspecialchars($_GET['q']) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>"
+                                <a href="?filter=中型犬<?php echo isset($_GET['q']) ? '&q=' . htmlspecialchars($_GET['q']) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?><?php echo isset($_GET['available']) ? '&available=' . htmlspecialchars($_GET['available']) : ''; ?>"
                                     class="btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === '中型犬') ? 'btn-primary' : 'btn-light'; ?>">中型犬</a>
-                                <a href="?filter=大型犬<?php echo isset($_GET['q']) ? '&q=' . htmlspecialchars($_GET['q']) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>"
+                                <a href="?filter=大型犬<?php echo isset($_GET['q']) ? '&q=' . htmlspecialchars($_GET['q']) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?><?php echo isset($_GET['available']) ? '&available=' . htmlspecialchars($_GET['available']) : ''; ?>"
                                     class="btn <?php echo (isset($_GET['filter']) && $_GET['filter'] === '大型犬') ? 'btn-primary' : 'btn-light'; ?>">大型犬</a>
+                                <!-- 新增「有空房」按鈕 -->
+                                <a href="?available=1<?php echo isset($_GET['filter']) ? '&filter=' . htmlspecialchars($_GET['filter']) : ''; ?><?php echo isset($_GET['q']) ? '&q=' . htmlspecialchars($_GET['q']) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?><?php echo isset($_GET['sort_column']) ? '&sort_column=' . htmlspecialchars($_GET['sort_column']) : ''; ?>"
+                                    class="btn <?php echo (isset($_GET['available']) && $_GET['available'] == 1) ? 'btn-primary' : 'btn-light'; ?>">有空房</a>
                                 <input type="text" name="q" placeholder="搜尋..." value="<?= htmlspecialchars($_GET["q"] ?? ""); ?>">
                                 <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass fa-fw"></i></button>
                                 <div class="d-flex justify-content-end mb-4">
@@ -256,7 +284,7 @@ $hotels = $result->fetch_all(MYSQLI_ASSOC);
                                             </a>
                                         </th>
                                         <th scope="col">圖片</th>
-                                        <th scope="col">飯店名稱</th> <!-- 不提供排序 -->
+                                        <th scope="col">飯店名稱</th>
                                         <th scope="col">簡介</th>
                                         <th scope="col">類型</th>
                                         <th scope="col">
@@ -290,21 +318,21 @@ $hotels = $result->fetch_all(MYSQLI_ASSOC);
                                             <td><?= htmlspecialchars($hotel['phone']); ?></td>
                                             <td>
                                                 <?php
-                                                // 修改 SQL 查詢以正確判斷當天占用的房間
                                                 $sqlBooked = "SELECT COUNT(*) FROM bookings WHERE hotel_id = ? AND check_in <= CURDATE() AND check_out > CURDATE()";
                                                 $stmtBooked = $conn->prepare($sqlBooked);
                                                 $stmtBooked->bind_param("i", $hotel['id']);
                                                 $stmtBooked->execute();
                                                 $booked = $stmtBooked->get_result()->fetch_row()[0];
+                                                $stmtBooked->close();
 
-                                                // 計算可用房間數，假設 $hotel['total_rooms'] 已正確設定
                                                 $available = $hotel['total_rooms'] - $booked;
 
-                                                // 根據可用房間數顯示結果
-                                                if ($available > 0) {
-                                                    echo "有空房";
+                                                if ($available == 0) {
+                                                    echo '<span class="badge bg-danger">無空房</span>';
+                                                } elseif ($available <= 3) {
+                                                    echo '<span class="badge bg-warning">有空房（剩 ' . $available . ' 間）</span>';
                                                 } else {
-                                                    echo "無空房";
+                                                    echo '<span class="badge bg-success">有空房（剩 ' . $available . ' 間）</span>';
                                                 }
                                                 ?>
                                             </td>

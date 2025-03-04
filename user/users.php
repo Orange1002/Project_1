@@ -40,16 +40,16 @@ $orderClause = "";
 // 檢查是否有排序條件
 switch ($order) {
     case 1:
-        $orderClause = "ORDER BY users.id DESC";
-        break;
-    case 2:
         $orderClause = "ORDER BY users.id ASC";
         break;
+    case 2:
+        $orderClause = "ORDER BY users.id DESC";
+        break;
     case 3:
-        $orderClause = "ORDER BY users.name ASC";
+        $orderClause = "ORDER BY users.name DESC";
         break;
     case 4:
-        $orderClause = "ORDER BY users.name DESC";
+        $orderClause = "ORDER BY users.name ASC";
         break;
     case 5:
         $orderClause = "ORDER BY users.created_at DESC";
@@ -303,7 +303,7 @@ if ($q !== "") {
                                 <div class="col-md-6">
                                     <div class="hstack gap-2 align-item-center">
 
-                                        <div>共 <?= $userCount ?> 位使用者</div>
+                                        <div>共 <?= $filteredUserCount ?> 位使用者</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -313,22 +313,24 @@ if ($q !== "") {
                                                 <!-- 全部（不帶 gender_id） -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (!isset($_GET["gender_id"])) ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= $order ?>&q=<?= urlencode($q) ?>">全部</a>
+                                                        href="users.php?p=1&order=<?= $order ?><?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">
+                                                        全部
+                                                    </a>
                                                 </li>
                                                 <!-- 男性 -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "1") ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=1&q=<?= urlencode($q) ?>">男性</a>
+                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=1<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">男性</a>
                                                 </li>
                                                 <!-- 女性 -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "2") ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=2&q=<?= urlencode($q) ?>">女性</a>
+                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=2<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">女性</a>
                                                 </li>
                                                 <!-- 不願透漏 -->
                                                 <li class="nav-item">
                                                     <a class="nav-link py-1 px-2 <?= (isset($_GET["gender_id"]) && $_GET["gender_id"] == "3") ? "active" : "" ?>"
-                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=3&q=<?= urlencode($q) ?>">不願透漏</a>
+                                                        href="users.php?p=1&order=<?= $order ?>&gender_id=3<?= isset($q) && $q !== "" ? '&q=' . urlencode($q) : '' ?>">不願透漏</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -363,7 +365,7 @@ if ($q !== "") {
                                 </div>
                             </div>
                             <?php if ($userCount > 0): ?>
-                                <table class="table table-bordered table-striped mb-5">
+                                <table class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
                                             <th class="align-middle">
@@ -371,35 +373,32 @@ if ($q !== "") {
                                                     <div class="d-flex align-items-center justify-content-end col-8 p-0">
                                                         id
                                                     </div>
-                                                    <div class="col-4 list-btn d-flex flex-column px-2">
-                                                        <!-- 上升排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=1<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 <?= ($order == 1) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-up"></i>
-                                                        </a>
-                                                        <!-- 下降排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=2<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 m-0 <?= ($order == 2) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-down"></i>
+                                                    <?php
+                                                    $next_order = ($order == 1) ? 2 : 1; // 切換排序
+                                                    $icon = ($order == 1) ? "fa-caret-down" : "fa-caret-up"; // 切換圖標
+                                                    ?>
+                                                    <div class="col-4 list-btn">
+                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                            class="d-flex btn p-0 <?= ($order == 1 || $order == 2) ? "active" : "" ?>">
+                                                            <i class="fa-solid <?= $icon ?>"></i>
                                                         </a>
                                                     </div>
                                                 </div>
                                             </th>
                                             <th class="align-middle">
                                                 <div class="row g-0">
-                                                    <div class="d-flex align-items-center justify-content-end col-8 ms-2 p-0">
+                                                    <div class="d-flex align-items-center justify-content-end col-8 p-0">
                                                         使用者名稱
                                                     </div>
-                                                    <div class="col-3 list-btn d-flex flex-column ps-2 pe-0">
-                                                        <!-- 上升排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=4<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 <?= ($order == 4) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-up"></i>
-                                                        </a>
-                                                        <!-- 下降排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=3<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 m-0 <?= ($order == 3) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-down"></i>
+                                                    <?php
+                                                    // 確定當前排序狀態，並計算下一次點擊的排序值
+                                                    $next_order = ($order == 4) ? 3 : 4; // 4=升冪，3=降冪
+                                                    $icon = ($order == 4) ? "fa-caret-down" : "fa-caret-up"; // 圖標變更
+                                                    ?>
+                                                    <div class="col-4 list-btn">
+                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                            class="d-flex btn p-0 <?= ($order == 3 || $order == 4) ? "active" : "" ?>">
+                                                            <i class="fa-solid <?= $icon ?>"></i>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -409,19 +408,18 @@ if ($q !== "") {
                                             <th class="align-middle text-center">電子信箱</th>
                                             <th class="align-middle text-center">
                                                 <div class="row g-0">
-                                                    <div class="d-flex align-items-center justify-content-end col-8">
+                                                    <div class="d-flex align-items-center justify-content-end col-8 p-0">
                                                         加入時間
                                                     </div>
-                                                    <div class="col-4 list-btn d-flex flex-column">
-                                                        <!-- 上升排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=6<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 <?= ($order == 6) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-up"></i>
-                                                        </a>
-                                                        <!-- 下降排序 -->
-                                                        <a href="users.php?p=<?= $p ?>&order=5<?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
-                                                            class="d-flex btn p-0 m-0 <?= ($order == 5) ? "active" : "" ?>">
-                                                            <i class="fa-solid fa-caret-down"></i>
+                                                    <?php
+                                                    // 計算下一個排序狀態
+                                                    $next_order = ($order == 6) ? 5 : 6; // 6=升冪，5=降冪
+                                                    $icon = ($order == 6) ? "fa-caret-down" : "fa-caret-up"; // 根據當前狀態變更圖示
+                                                    ?>
+                                                    <div class="col-4 list-btn">
+                                                        <a href="users.php?p=<?= $p ?>&order=<?= $next_order ?><?= isset($_GET['gender_id']) ? '&gender_id=' . $_GET['gender_id'] : '' ?>"
+                                                            class="d-flex btn p-0 <?= ($order == 5 || $order == 6) ? "active" : "" ?>">
+                                                            <i class="fa-solid <?= $icon ?>"></i>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -449,6 +447,9 @@ if ($q !== "") {
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
+                                <div>
+                                    <button class="btn btn-warning">已刪除會員</button>
+                                </div>
                                 <?php
                                 // 取得當前的頁碼
                                 $p = isset($_GET["p"]) ? $_GET["p"] : 1;

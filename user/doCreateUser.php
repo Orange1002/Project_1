@@ -17,7 +17,7 @@ $now = date("Y-m-d");
 
 
 $sql = "INSERT INTO users (name, gender_id, account, password, email, phone, birth_date, created_at, valid)
-	VALUES ('$name', '$gender_id', '$account', 'password', '$email', '$phone', '$birth_date', '$now', 1)";
+	VALUES ('$name', '$gender_id', '$account', '$password', '$email', '$phone', '$birth_date', '$now', 1)";
 
 
 // echo $sql;

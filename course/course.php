@@ -405,7 +405,7 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                 <ul class="pagination">
                                     <?php for ($i = 1; $i <= $totalPage; $i++): ?>
                                         <?php
-                                        $active = ($i == $p) ? "active" : "";
+                                        $active = ($i == $_GET["p"]) ? "active" : "";
                                         ?>
                                         <li class="page-item <?= $active ?>">
                                             <a class="page-link" href="course.php?p=<?= $i ?>&order=<?= $order ?><?php if (isset($_GET["category"])) {
@@ -425,16 +425,16 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                 <ul class="pagination">
                                     <?php for ($i = 1; $i <= $totalPage; $i++): ?>
                                         <?php
-                                        $active = ($i == $_GET["p"]) ? "active" : "";
+                                        $active = ($i == $p) ? "active" : "";
                                         ?>
-                                        <?php echo "<$p>";?>
-                                        <!-- <li class="page-item <?= $active ?>">
+                                        
+                                        <li class="page-item <?= $active ?>">
                                             <a class="page-link" href="course.php?p=<?= $i ?>&order=<?= $order ?><?php if (isset($_GET["category"])) {
                                                                                                                         echo '&category=' . $category_id;
                                                                                                                     } ?><?php if (isset($_GET["q"])) {
                                                                                                                             echo '&q=' . $q;
                                                                                                                         } ?>"><?= $i ?></a>
-                                        </li> -->
+                                        </li>
                                     <?php endfor; ?>
                                 </ul>
                             </nav>

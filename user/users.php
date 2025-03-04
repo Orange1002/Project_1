@@ -94,6 +94,9 @@ if ($gender_id !== "") {
 if ($q !== "") {
     $queryString .= "&q=" . urlencode($q); // 保留搜尋條件
 }
+if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !isset($_GET["order"])) {
+    header("location: users.php?p=1&order=1");
+}
 ?>
 
 <!doctype html>

@@ -12,6 +12,17 @@ if(isset($_GET["p"]) && isset($_GET["order"])){
     echo "$p and $order";
 }
 
+if(isset($_GET["q"])){
+    $q = $_GET["q"];
+    echo "$q";
+}
+
+if(isset($_GET["category_id"])){
+    $category_id = $_GET["category_id"];
+    echo "$category_id";
+}
+
+
 
 require_once("../db_connect_bark_bijou.php");
 $sql = "SELECT * FROM course WHERE id = $id AND valid=1";

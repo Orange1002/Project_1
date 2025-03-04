@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once("../pdo_connect_bark_bijou.php");
 
 // 取得商品 ID

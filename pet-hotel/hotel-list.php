@@ -330,9 +330,9 @@ $hotels = $result->fetch_all(MYSQLI_ASSOC);
                                                 if ($available == 0) {
                                                     echo '<span class="badge bg-danger">無空房</span>';
                                                 } elseif ($available <= 3) {
-                                                    echo '<span class="badge bg-warning">有空房（剩 ' . $available . ' 間）</span>';
+                                                    echo '<span class="badge bg-warning">有空房</span>';
                                                 } else {
-                                                    echo '<span class="badge bg-success">有空房（剩 ' . $available . ' 間）</span>';
+                                                    echo '<span class="badge bg-success">有空房</span>';
                                                 }
                                                 ?>
                                             </td>

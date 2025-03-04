@@ -241,7 +241,7 @@ $products = $stmt->fetchAll();
                         </div>
                     </form>
                     <div class="py-2">
-                        
+
                         <a class="btn btn-success float-end mb-3" href="create_product.php"><i class="fa-solid fa-plus fa-fw"></i> 新增商品</a>
                     </div>
                     <?php if (count($products) > 0): ?>
@@ -278,6 +278,9 @@ $products = $stmt->fetchAll();
                                         <td>
                                             <a href="product_edit.php?id=<?= $product["id"] ?>" class="btn btn-primary btn-sm">
                                                 <i class="fa-solid fa-pen fa-fw"></i> 編輯
+                                            </a>
+                                            <a href="product_view.php?id=<?= $product["id"] ?>" class="btn btn-info btn-sm">
+                                                <i class="fa-solid fa-eye fa-fw"></i> 檢視
                                             </a>
                                             <a href="product_delete.php?id=<?= $product["id"] ?>" class="btn btn-danger btn-sm" onclick="return confirm('確定要刪除這個商品嗎？');">
                                                 <i class="fa-solid fa-trash fa-fw"></i> 刪除

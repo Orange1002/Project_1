@@ -112,7 +112,7 @@ if (!isset($_GET["q"]) && !isset($_GET["gender_id"]) && !isset($_GET["p"]) && !i
 <html lang="en">
 
 <head>
-    <title>Bark & Bijou users</title>
+    <title>會員列表</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

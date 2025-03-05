@@ -24,7 +24,7 @@ $row_image = $result_image->fetch_all(MYSQLI_ASSOC);
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>文章</title>
+    <title>文章刪除管理</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -225,15 +225,16 @@ $row_image = $result_image->fetch_all(MYSQLI_ASSOC);
                             </div>
                             <div class="py-2 d-flex justify-content-between">
 
-                                <a href="article-edit.php?id=<?= $row["id"] ?>" class=""><button class="btn btn-primary text-white "><i class="fa-solid fa-pen-to-square fa-fw"></i></button></a>
+                                <a href="articleRecover.php?id=<?= $row["id"] ?>" class=""><button class="btn btn-primary text-white "><i class="fa-solid fa-rotate-left"></i></button></a>
                                 <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="fa-solid fa-trash fa-fw"></i></a>
+
                             </div>
                         </div>
                     <?php else: ?>
                         <h1>文章不存在</h1>
                     <?php endif; ?>
                     <div class="pt-3">
-                        <a href="../article/article-list.php"><button class="btn btn-warning text-white rounded-pill"><i class="fa-solid fa-arrow-left fa-fw text-white"></i>文章列表</button></a>
+                        <a href="../article/article-recover.php?id=1"><button class="btn btn-warning text-white rounded-pill"><i class="fa-solid fa-arrow-left fa-fw text-white"></i>已刪除文章列表</button></a>
                     </div>
                     <!-- End of Page Wrapper -->
                 </div>

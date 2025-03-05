@@ -373,20 +373,22 @@ $rowImg = $resultImg->fetch_all(MYSQLI_ASSOC);
                                         <td class="align-middle"><?php
                                                                     // 假設 $course["registration_start"] 是一個日期字串
                                                                     $registration_start = $course["registration_start"];
+                                                                    $registration_end = $course["registration_end"];
 
                                                                     // 取得今天的日期
                                                                     $today = new DateTime();
 
                                                                     // 將 $registration_start 轉換為 DateTime 物件
                                                                     $registration_date = new DateTime($registration_start);
+                                                                    $registration_dateEnd = new DateTime($registration_end);
 
                                                                     // 比較日期
-                                                                    if ($registration_date->format('Y-m-d') <= $today->format('Y-m-d')) {
+                                                                    if (($registration_date->format('Y-m-d') <= $today->format('Y-m-d')) && ($registration_dateEnd->format('Y-m-d') >= $today->format('Y-m-d'))) {
                                                                         // 如果 registration_start 是今天或之前
-                                                                        echo "已上架";
+                                                                        echo "可報名";
                                                                     } else {
                                                                         // 如果是其他情況（例如未來某天）
-                                                                        echo "未上架";
+                                                                        echo "不可報名";
                                                                     }
                                                                     ?>
 

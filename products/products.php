@@ -251,6 +251,7 @@ $products = $stmt->fetchAll();
                                     <th>ID</th>
                                     <th>圖片</th>
                                     <th>商品名稱</th>
+                                    <th>商品類別</th>
                                     <th>供應商</th>
                                     <th>價格 (TWD)</th>
                                     <th>庫存</th>
@@ -264,6 +265,7 @@ $products = $stmt->fetchAll();
                                         <td><?= htmlspecialchars($product["id"]) ?></td>
                                         <td><img src="<?= htmlspecialchars($product['img_url']) ?>"
                                                 alt="商品圖片" class="img-thumbnail" style="width: 50px; height: 50px;"></td>
+                                        <td><?= htmlspecialchars($product["product_name"]) ?></td>
                                         <td><?= htmlspecialchars($product["product_name"]) ?></td>
                                         <td><?= htmlspecialchars($product["vendor_name"]) ?></td>
                                         <td><?= number_format($product["price"]) ?> TWD</td>

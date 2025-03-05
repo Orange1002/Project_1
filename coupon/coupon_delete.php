@@ -3,6 +3,7 @@ require_once("../pdo_connect_bark_bijou.php");
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['id'])) {
     $coupon_id = intval($_GET['id']);
+    $page = $_GET['page'] ?? 1; // 預設回到第 1 頁
 
     // 確保優惠券存在
     $check_stmt = $db_host->prepare("SELECT * FROM coupon WHERE coupon_id = :id");
@@ -17,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['id'])) {
     // 執行軟刪除（將 valid 設為 0）
     $stmt = $db_host->prepare("UPDATE coupon SET valid = 0 WHERE coupon_id = :id");
     if ($stmt->execute([':id' => $coupon_id])) {
-        header("Location: coupon.php?success=優惠券已停用");
+        header("Location: coupon.php?page=$page");
         exit;
     } else {
         header("Location: coupon.php?error=優惠券停用失敗");

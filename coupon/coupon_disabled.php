@@ -20,7 +20,7 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Bark & Bijou</title>
+    <title>已停用優惠券</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -200,15 +200,72 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <td><?= $coupon['end_date'] ?></td>
                                         <td><?= number_format($coupon['min_order_amount'], 0) ?> TWD</td>
                                         <td>
-                                            <a href="coupon_restore.php?id=<?= $coupon['coupon_id'] ?>"
-                                                class="btn btn-success btn-sm"
-                                                onclick="return confirm('你確定要還原這張優惠券嗎？');">還原</a>
+                                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#restoreModal"
+                                                data-id="<?= $coupon['coupon_id'] ?>" data-code="<?= htmlspecialchars($coupon['code']) ?>">
+                                                <i class="fa-solid fa-undo"></i> 還原
+                                            </button>
 
+
+                                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-id="<?= $coupon['coupon_id'] ?>" data-code="<?= htmlspecialchars($coupon['code']) ?>">
+                                                <i class="fa-solid fa-trash"></i> 永久刪除
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        <!-- 永久刪除確認 Modal -->
+                        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel">確認永久刪除</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        你確定要 永久刪除 優惠券 <strong id="deleteCouponCode"></strong> 嗎？<br>
+                                        此動作無法復原！
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <a href="#" id="confirmDeleteBtn" class="btn btn-danger">確定刪除</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 還原確認 Modal -->
+                        <div class="modal fade" id="restoreModal" tabindex="-1" aria-labelledby="restoreModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="restoreModalLabel">確認還原</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        你確定要 **還原** 優惠券 <strong id="restoreCouponCode"></strong> 嗎？
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <a href="#" id="confirmRestoreBtn" class="btn btn-success">確定還原</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php if (isset($_GET['deleted'])): ?>
+                            <script>
+                                alert("優惠券已永久刪除！");
+                            </script>
+                        <?php endif; ?>
+
+                        <?php if (isset($_GET['restored'])): ?>
+                            <script>
+                                alert("優惠券已成功還原！");
+                            </script>
+                        <?php endif; ?>
+
                     </div>
                 </div>
                 <!-- End of Page Wrapper -->
@@ -218,6 +275,34 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
     </div>
 
+    <?php include("../js.php") ?>
+
+    <script>
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var couponId = button.getAttribute('data-id');
+            var couponCode = button.getAttribute('data-code');
+
+            var modalCouponCode = document.getElementById('deleteCouponCode');
+            modalCouponCode.textContent = couponCode;
+
+            var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            confirmDeleteBtn.href = 'coupon_delete_permanent.php?id=' + couponId;
+        });
+        var restoreModal = document.getElementById('restoreModal');
+        restoreModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var couponId = button.getAttribute('data-id');
+            var couponCode = button.getAttribute('data-code');
+
+            var modalCouponCode = document.getElementById('restoreCouponCode');
+            modalCouponCode.textContent = couponCode;
+
+            var confirmRestoreBtn = document.getElementById('confirmRestoreBtn');
+            confirmRestoreBtn.href = 'coupon_restore.php?id=' + couponId;
+        });
+    </script>
 
 
 </body>

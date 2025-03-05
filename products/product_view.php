@@ -218,9 +218,31 @@ if (!$product) {
                             <i class="fa-solid fa-pen"></i> 編輯商品
                         </a>
 
-                        <a href="product_delete.php?id=<?= $product["id"] ?>" class="btn btn-danger" onclick="return confirm('確定要刪除這個商品嗎？');">
+                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                            data-id="<?= $product["id"] ?>" data-name="<?= htmlspecialchars($product["product_name"]) ?>"
+                            data-page="<?= $page ?>">
                             <i class="fa-solid fa-trash"></i> 刪除商品
-                        </a>
+                        </button>
+
+                    </div>
+                    <!-- 刪除確認 Modal -->
+                    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel">確認刪除</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    你確定要刪除 <strong id="deleteProductName"></strong> 嗎？<br>
+                                    刪除後仍可在 **回收站** 還原。
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger">確定刪除</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -231,6 +253,23 @@ if (!$product) {
     </div>
     </div>
 
+    <?php include("../js.php") ?>
+
+    <script>
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var productId = button.getAttribute('data-id');
+            var productName = button.getAttribute('data-name');
+            var page = button.getAttribute('data-page'); // 取得當前頁數
+
+            var modalProductName = document.getElementById('deleteProductName');
+            modalProductName.textContent = productName;
+
+            var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            confirmDeleteBtn.href = 'product_delete.php?id=' + productId + '&page=' + page;
+        });
+    </script>
 
 
 </body>

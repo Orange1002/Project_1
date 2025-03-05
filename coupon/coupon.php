@@ -8,7 +8,7 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $perPage;
 
 // 取得優惠券總數
-$sqlTotal = "SELECT COUNT(*) as total FROM coupon";
+$sqlTotal = "SELECT COUNT(*) as total FROM coupon WHERE valid = 1";
 $stmtTotal = $db_host->query($sqlTotal);
 $totalCoupons = $stmtTotal->fetch(PDO::FETCH_ASSOC)['total'];
 $totalPages = ceil($totalCoupons / $perPage);
@@ -66,7 +66,7 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Bark & Bijou</title>
+    <title>優惠券列表</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -212,7 +212,7 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
                     <div class="p-2">
-                        
+
 
                         <a class="btn btn-success float-end mb-3" href="create_coupon.php"><i class="fa-solid fa-plus fa-fw"></i> 新增優惠券</a>
                     </div>
@@ -250,23 +250,87 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td><?= $coupon['usage_limit'] ?? '無限制' ?></td>
                                     <td><?= number_format($coupon['min_order_amount'], 0) ?> TWD</td>
                                     <td>
-                                        <a href="coupon_edit.php?id=<?= $coupon['coupon_id'] ?>" class="btn btn-warning btn-sm">編輯</a>
-                                        <a href="coupon_delete.php?id=<?= $coupon['coupon_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('確定要刪除嗎？')">刪除</a>
+                                        <a href="coupon_edit.php?id=<?= $coupon['coupon_id'] ?>&page=<?= $page ?>"
+                                            class="btn btn-warning btn-sm">
+                                            <i class="fa-solid fa-pen fa-fw"></i> 編輯
+                                        </a>
+
+                                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            data-id="<?= $coupon['coupon_id'] ?>" data-code="<?= htmlspecialchars($coupon['code']) ?>" data-page="<?= $page ?>">
+                                            <i class="fa-solid fa-trash"></i> 刪除
+                                        </button>
+
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                    <!-- 刪除確認 Modal -->
+                    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel">確認刪除</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    你確定要刪除優惠券 <strong id="deleteCouponCode"></strong> 嗎？<br>
+                                    刪除後仍可在 停用優惠券 中還原。
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger">確定刪除</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <nav>
-                        <ul class="pagination">
-                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                                <li class="page-item<?= ($i == $page) ? ' active' : '' ?>">
-                                    <a class="page-link" href="?page=<?= $i ?>">第 <?= $i ?> 頁</a>
+                    <!-- 分頁 -->
+                    <?php if ($totalPages > 1): ?>
+                        <nav>
+                            <ul class="pagination justify-content-center mt-3">
+                                <!-- 上一頁 -->
+                                <li class="page-item <?= ($page == 1) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="?search=<?= urlencode($search) ?>&sort=<?= urlencode($sort) ?>&page=<?= max(1, $page - 1) ?>">«</a>
                                 </li>
-                            <?php endfor; ?>
-                        </ul>
-                    </nav>
+
+                                <?php
+                                $max_pages_to_show = 5; // 最多顯示 5 個頁碼（包含當前頁）
+                                $start_page = max(1, $page - 2);
+                                $end_page = min($totalPages, $start_page + $max_pages_to_show - 1);
+
+                                // 如果開始頁大於 1，顯示 "1 ..." 的省略符號
+                                if ($start_page > 1) {
+                                    echo '<li class="page-item"><a class="page-link" href="?search=' . urlencode($search) . '&sort=' . urlencode($sort) . '&page=1">1</a></li>';
+                                    if ($start_page > 2) {
+                                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                    }
+                                }
+
+                                // 顯示頁碼
+                                for ($i = $start_page; $i <= $end_page; $i++) {
+                                    echo '<li class="page-item ' . ($page == $i ? 'active' : '') . '">
+                    <a class="page-link" href="?search=' . urlencode($search) . '&sort=' . urlencode($sort) . '&page=' . $i . '">' . $i . '</a>
+                </li>';
+                                }
+
+                                // 如果結束頁小於總頁數，顯示 "… 總頁數"
+                                if ($end_page < $totalPages) {
+                                    if ($end_page < $totalPages - 1) {
+                                        echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                                    }
+                                    echo '<li class="page-item"><a class="page-link" href="?search=' . urlencode($search) . '&sort=' . urlencode($sort) . '&page=' . $totalPages . '">' . $totalPages . '</a></li>';
+                                }
+                                ?>
+
+                                <!-- 下一頁 -->
+                                <li class="page-item <?= ($page == $totalPages) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="?search=<?= urlencode($search) ?>&sort=<?= urlencode($sort) ?>&page=<?= min($totalPages, $page + 1) ?>">»</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    <?php endif; ?>
+
 
                     <a class="btn btn-secondary float-end" href="coupon_disabled.php"><i class="fa-solid fa-eye"></i> 查看已停用優惠券</a>
 
@@ -278,6 +342,22 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
     </div>
 
+    <?php include("../js.php") ?>
+    <script>
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var couponId = button.getAttribute('data-id');
+            var couponCode = button.getAttribute('data-code');
+            var page = button.getAttribute('data-page'); // 取得當前頁數
+
+            var modalCouponCode = document.getElementById('deleteCouponCode');
+            modalCouponCode.textContent = couponCode;
+
+            var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            confirmDeleteBtn.href = 'coupon_delete.php?id=' + couponId + '&page=' + page;
+        });
+    </script>
 
 
 </body>

@@ -3,6 +3,7 @@ session_start();
 require_once("../pdo_connect_bark_bijou.php");
 
 $coupon_id = $_GET['id'] ?? null;
+$page = $_GET['page'] ?? 1;
 
 if (!$coupon_id) {
     die("請提供有效的優惠券 ID！");
@@ -61,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $update_stmt->bindParam(':coupon_id', $coupon_id, PDO::PARAM_INT);
 
             if ($update_stmt->execute()) {
-                header("Location: coupon.php?edited=1");
+                header("Location: coupon.php?page=$page&edited=1");
                 exit;
             } else {
                 $error = "更新失敗！";
@@ -82,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Bark & Bijou</title>
+    <title>編輯優惠券</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -251,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
 
                             <button type="submit" class="btn btn-primary">更新優惠券</button>
-                            <a class="btn btn-danger" href="coupon.php">取消編輯</a>
+                            <a class="btn btn-danger" href="coupon.php?page=<?= $page ?>">取消編輯</a>
                         </form>
                     </div>
                 </div>

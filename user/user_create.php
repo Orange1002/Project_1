@@ -17,13 +17,18 @@ if (!isset($_SESSION["user"])) {
     <meta name="description" content="">
     <meta name="author" content="">
     <?php include("../css.php") ?>
+    <style>
+        .primary {
+            background-color: rgba(245, 160, 23, 0.919);
+        }
+    </style>
 </head>
 
 <body id="page-top">
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
-        <ul class="navbar-nav sidebar sidebar-dark accordion bg-warning" id="accordionSidebar">
+        <ul class="navbar-nav sidebar sidebar-dark accordion primary" id="accordionSidebar">
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="users.php">
                 <div class="sidebar-brand-icon rotate-n-15">

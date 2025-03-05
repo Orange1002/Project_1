@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+$today = date("Y-m-d");
+
 if (!isset($_GET["id"])) {
     header("location: course.php");
 }

@@ -56,7 +56,13 @@ session_start();
     <div class="vh-100 d-flex justify-content-center align-items-center">
         <div class="login-painel">
             <!-- <img class="logo mb-2" src="../images/" alt=""> -->
-            <h1 class="text-dark">Please sign in</h1>
+            <a class="sidebar-brand d-flex align-items-center justify-content-center mb-5 text-decoration-none" href="users.php">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink text-warning fs-2"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3 text-warning fs-2">Bark & Bijou</div>
+            </a>
+            <h3 class="text-dark">請登入</h3>
             <?php if (isset($_SESSION["error"]["times"]) && $_SESSION["error"]["times"] > 5): ?>
                 <div class="alert alert-danger" role="alert">
                     錯誤次數太多,請稍後再嘗試
@@ -92,7 +98,7 @@ session_start();
                             </button>
                         </div>
                         <div class="col-6 d-flex">
-                            <a href="sign_up_1.php" class="btn btn-secondary w-100">
+                            <a href="sign_up_1.php" class="btn btn-primary w-100">
                                 註冊
                             </a>
                         </div>

@@ -226,38 +226,38 @@ $rowsLocation = $resultLocation->fetch_all(MYSQLI_ASSOC);
                         <h1 class="h1 mb-0 text-gray-800 fw-bold">課程內容</h1>
                         <div class="d-flex justify-content-center mt-3">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程名稱</label>
-                            <div class="col-6 bg-info d-flex align-items-center py-3">
+                            <div class="col-6 border border-dark d-flex align-items-center py-3">
                                 <input type="text" class="form-control" name="name" value="<?= $row["name"] ?>" required>
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程內容</label>
-                            <div class="col-6 bg-primary d-flex align-items-center py-3">
+                            <div class="col-6 border border-dark d-flex align-items-center py-3">
                                 <textarea type="text" class="form-control" name="content" rows="10" value="" required><?= $row["content"] ?></textarea>
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程照片</label>
-                            <div class="col-6 bg-info py-3">
+                            <div class="col-6 border border-dark py-3">
                                 <input type="file" class="form-control mt-3" name="image" accept=".jpg, .jpeg, .png" required>
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程金額</label>
-                            <div class="col-6 bg-primary d-flex align-items-center py-3">
+                            <div class="col-6 border border-dark d-flex align-items-center py-3">
                                 <input type="number" class="form-control" name="cost" value="<?= $row["cost"] ?>" required>
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程方法</label>
-                            <div class="col-6 bg-info d-flex align-items-center py-3">
+                            <div class="col-6 border border-dark d-flex align-items-center py-3">
                                 <input type="radio" name="method" value="1" required>線上
                                 <input type="radio" class="ms-3" name="method" value="2" required>線下
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程地點</label>
-                            <div class="col-6 bg-primary d-flex align-items-center py-3">
+                            <div class="col-6 border border-dark d-flex align-items-center py-3">
                                 <select name="location">
                                     <?= $value = 1 ?>
                                     <?php foreach ($rowsLocation as $location): ?>
@@ -269,33 +269,33 @@ $rowsLocation = $resultLocation->fetch_all(MYSQLI_ASSOC);
                         <div class="d-flex justify-content-center">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">教師資訊</label>
                             <div class="col-6 p-0">
-                                <div class="bg-info d-flex align-items-center py-3 px-12">
+                                <div class="border border-dark d-flex align-items-center py-3 px-12">
                                     <input type="text" class="form-control" name="teacher_name" value="<?= $rowTeacher["teacher_name"] ?>" required>
                                 </div>
-                                <div class="bg-info d-flex align-items-center py-3 px-12">
+                                <div class="border border-dark d-flex align-items-center py-3 px-12">
                                     <input type="tel" class="form-control" name="teacher_phone" value="<?= $rowTeacher["phone"] ?>" required>
                                 </div>
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">報名日期</label>
-                            <div class="col-6 bg-primary d-flex align-items-center py-3">
+                            <div class="col-6 border border-dark d-flex align-items-center py-3">
                                 <input type="date" name="registration_start" required value="<?= $today ?>">
-                                <h4 class="mx-2 text-white">~</h4>
+                                <h4 class="mx-2 mb-0">~</h4>
                                 <input type="date" name="registration_end" required value="<?= $today ?>">
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程日期</label>
-                            <div class="col-6 bg-info d-flex align-items-center py-3">
+                            <div class="col-6 border border-dark d-flex align-items-center py-3">
                                 <input type="date" name="course_start" required value="<?= $today ?>">
-                                <h4 class="mx-2 text-white">~</h4>
+                                <h4 class="mx-2 mb-0">~</h4>
                                 <input type="date" name="course_end" required value="<?= $today ?>">
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
                             <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center justify-content-center">編輯</label>
-                            <div class="col-6 bg-primary d-flex align-items-center justify-content-between py-3">
+                            <div class="col-6 border border-dark d-flex align-items-center justify-content-between py-3">
                                 <div>
                                     <a href="course.php?p=<?= $p ?>&order=<?= $order ?><?php if (isset($q) && $_GET["q"] !== "") {
                                                                                             echo "&q=$q";

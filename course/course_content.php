@@ -217,70 +217,70 @@ $rowsLocation = $resultLocation->fetch_assoc();
                     <h1 class="h1 mb-0 text-gray-800 fw-bold">課程內容</h1>
                     <div class="d-flex justify-content-center mt-3">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程名稱</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["name"] ?></h4>
+                        <div class="col-6 border border-dark d-flex align-items-center py-3">
+                            <h4 class="mb-0  col text-start"><?= $row["name"] ?></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程內容</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["content"] ?></h4>
+                        <div class="col-6 border border-dark d-flex align-items-center py-3">
+                            <h4 class="mb-0  col text-start"><?= $row["content"] ?></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程照片</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white text-start "><img class="img-size1" src="./course_images/<?= $rowImg["image"] ?>"></h4>
+                        <div class="col-6 border border-dark d-flex align-items-center py-3">
+                            <h4 class="mb-0  text-start "><img class="img-size1" src="./course_images/<?= $rowImg["image"] ?>"></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程金額</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start">$<?= number_format($row["cost"]) ?></h4>
+                        <div class="col-6 border border-dark d-flex align-items-center py-3">
+                            <h4 class="mb-0  col text-start">$<?= number_format($row["cost"]) ?></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程方法</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $rowsMethod["method_name"] ?></h4>
+                        <div class="col-6 border border-dark d-flex align-items-center py-3">
+                            <h4 class="mb-0  col text-start"><?= $rowsMethod["method_name"] ?></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程地點</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $rowsLocation["adress"] ?></h4>
+                        <div class="col-6 border border-dark d-flex align-items-center py-3">
+                            <h4 class="mb-0  col text-start"><?= $rowsLocation["adress"] ?></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">教師資訊</label>
                         <div class="col-6 p-0">
-                            <div class="bg-info d-flex align-items-center py-3 px-12">
-                                <h4 class="mb-0 bg-white col text-start"><?= $rowTeacher["teacher_name"] ?></h4>
+                            <div class="border border-dark d-flex align-items-center py-3 px-12">
+                                <h4 class="mb-0  col text-start"><?= $rowTeacher["teacher_name"] ?></h4>
                             </div>
-                            <div class="bg-info d-flex align-items-center py-3 px-12">
-                                <h4 class="mb-0 bg-white col text-start"><?= $rowTeacher["phone"] ?></h4>
+                            <div class="border border-dark d-flex align-items-center py-3 px-12">
+                                <h4 class="mb-0  col text-start"><?= $rowTeacher["phone"] ?></h4>
                             </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">報名日期</label>
-                        <div class="col-6 bg-primary d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["registration_start"] ?></h4>
-                            <h4 class="mx-2 text-white">~</h4>
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["registration_end"] ?></h4>
+                        <div class="col-6 border border-dark d-flex align-items-center py-3">
+                            <h4 class="mb-0 p-0 col-4"><?= $row["registration_start"] ?></h4>
+                            <h4 class="mx-2 mb-0">~</h4>
+                            <h4 class="mb-0 p-0 col-4"><?= $row["registration_end"] ?></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center">課程日期</label>
-                        <div class="col-6 bg-info d-flex align-items-center py-3">
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["course_start"] ?></h4>
-                            <h4 class="mx-2 text-white">~</h4>
-                            <h4 class="mb-0 bg-white col text-start"><?= $row["course_end"] ?></h4>
+                        <div class="col-6 border border-dark d-flex align-items-center py-3">
+                            <h4 class="mb-0 p-0 col-4"><?= $row["course_start"] ?></h4>
+                            <h4 class="mx-2 mb-0">~</h4>
+                            <h4 class="mb-0 p-0 col-4"><?= $row["course_end"] ?></h4>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <label for="" class="form-label col-1 bg-secondary text-white mb-0 h5 d-flex align-items-center justify-content-center">編輯</label>
-                        <div class="col-6 bg-primary d-flex align-items-center justify-content-between py-3">
+                        <div class="col-6 border border-dark d-flex align-items-center justify-content-between py-3">
                             <a href="course.php?p=<?= $p ?>&order=<?= $order ?><?php if(isset($q) && $_GET["q"] !== ""){echo "&q=$q";}?><?php if(isset($category_id)){echo "&category=$category_id";}?>" class="btn btn-orange">返回</a>
                             <a class="btn btn-orange" href="course_edit.php?id=<?= $row["id"] ?>&p=<?= $p ?>&order=<?= $order ?><?php if(isset($q) && $_GET["q"] !== ""){echo "&q=$q";}?><?php if(isset($category_id)){echo "&category=$category_id";}?>">編輯</a>
                         </div>

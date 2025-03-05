@@ -244,7 +244,7 @@ $coupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        你確定要 **還原** 優惠券 <strong id="restoreCouponCode"></strong> 嗎？
+                                        你確定要 還原 優惠券 <strong id="restoreCouponCode"></strong> 嗎？
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>

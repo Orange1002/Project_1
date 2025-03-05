@@ -180,17 +180,61 @@ WHERE products.valid = 0");
                                         <td><?= number_format($product["price"]) ?> TWD</td>
                                         <td><?= $product["stock"] ?></td>
                                         <td>
-                                            <a href="product_recover.php?id=<?= $product["id"] ?>" class="btn btn-success btn-sm">
+                                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#recoverModal"
+                                                data-id="<?= $product["id"] ?>" data-name="<?= htmlspecialchars($product["product_name"]) ?>"
+                                                data-page="<?= $page ?>">
                                                 <i class="fa-solid fa-undo fa-fw"></i> 還原
-                                            </a>
-                                            <a href="product_delete_permanent.php?id=<?= $product["id"] ?>" class="btn btn-danger btn-sm" onclick="return confirm('確定要永久刪除這個商品嗎？');">
+                                            </button>
+
+                                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-id="<?= $product["id"] ?>" data-name="<?= htmlspecialchars($product["product_name"]) ?>"
+                                                data-page="<?= $page ?>">
                                                 <i class="fa-solid fa-trash fa-fw"></i> 永久刪除
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        <!-- 刪除確認 Modal -->
+                        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel">確認刪除</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        你確定要 永久刪除 <strong id="deleteProductName"></strong> 嗎？<br>
+                                        此動作 無法復原！
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <a href="#" id="confirmDeleteBtn" class="btn btn-danger">永久刪除</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 還原確認 Modal -->
+                        <div class="modal fade" id="recoverModal" tabindex="-1" aria-labelledby="recoverModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="recoverModalLabel">確認還原</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        你確定要 還原 <strong id="recoverProductName"></strong> 嗎？<br>
+                                        商品將重新顯示在商品列表。
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                        <a href="#" id="confirmRecoverBtn" class="btn btn-success">確定還原</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     <?php else: ?>
                         <div class="alert alert-warning">回收站內沒有商品。</div>
                     <?php endif; ?>
@@ -202,6 +246,37 @@ WHERE products.valid = 0");
     </div>
     </div>
 
+    <?php include("../js.php") ?>
+
+    <script>
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var productId = button.getAttribute('data-id');
+            var productName = button.getAttribute('data-name');
+            var page = button.getAttribute('data-page'); // 取得當前頁數
+
+            var modalProductName = document.getElementById('deleteProductName');
+            modalProductName.textContent = productName;
+
+            var confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            confirmDeleteBtn.href = 'product_delete_permanent.php?id=' + productId + '&page=' + page;
+        });
+
+        var recoverModal = document.getElementById('recoverModal');
+        recoverModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var productId = button.getAttribute('data-id');
+            var productName = button.getAttribute('data-name');
+            var page = button.getAttribute('data-page'); // 取得當前頁數
+
+            var modalProductName = document.getElementById('recoverProductName');
+            modalProductName.textContent = productName;
+
+            var confirmRecoverBtn = document.getElementById('confirmRecoverBtn');
+            confirmRecoverBtn.href = 'product_recover.php?id=' + productId + '&page=' + page;
+        });
+    </script>
 
 
 </body>
